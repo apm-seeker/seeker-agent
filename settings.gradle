@@ -1,1 +1,8 @@
 rootProject.name = 'seeker-agent'
+
+include 'agent-bootstrap'
+include 'agent-core'
+include 'agent-instrument'
+include 'agent-sender'
+include 'agent-config'
+include 'agent-distribution'

@@ -22,15 +22,14 @@ public class AgentConfig {
     // 연결할 collectore의 port를 설정해줍니다.
     private final int collectorPort;
     // TODO 추후 sample 구현 예정
-    // private final double samplingRate;
+    private final double samplingRate;
 
     private AgentConfig(Properties properties) {
         this.agentId = properties.getProperty("seeker.agentId", "unnamed-agent");
         this.applicationName = properties.getProperty("seeker.applicationName", "unnamed-application");
         this.collectorHost = properties.getProperty("seeker.collector.host", "127.0.0.1");
         this.collectorPort = Integer.parseInt(properties.getProperty("seeker.collector.port", "9991"));
-        // TODO 추후 구현 예정
-//        this.samplingRate = Double.parseDouble(properties.getProperty("seeker.sampling.rate", "1.0"));
+        this.samplingRate = Double.parseDouble(properties.getProperty("seeker.sampling.rate", "1.0"));
     }
 
     public static AgentConfig load() {
