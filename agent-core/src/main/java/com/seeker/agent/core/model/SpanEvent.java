@@ -1,4 +1,4 @@
-package com.seeker.context;
+package com.seeker.agent.core.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,8 @@ import java.util.Map;
 /**
  * 스팬 내에서 호출된 개별 메서드의 실행 정보를 표현하는 스팬 이벤트.
  *
- * <p>{@link Span} 하나에 여러 {@code SpanEvent}가 쌓이며, 함수 콜스택을 표현한다.
+ * <p>
+ * {@link Span} 하나에 여러 {@code SpanEvent}가 쌓이며, 함수 콜스택을 표현한다.
  *
  * <pre>
  * SpanEvent (UserController.getUser,  elapsed: 100ms)
@@ -19,7 +20,8 @@ public class SpanEvent {
     /**
      * 스팬 내에서 이 이벤트의 실행 순서.
      *
-     * <p>{@code depth}와 함께 콜스택 트리를 100% 복구할 수 있다.
+     * <p>
+     * {@code depth}와 함께 콜스택 트리를 100% 복구할 수 있다.
      * depth=N인 이벤트의 부모는 sequence 상 직전에 등장한 depth=N-1인 이벤트다.
      *
      * <pre>
@@ -43,7 +45,8 @@ public class SpanEvent {
     /**
      * 호출된 API의 ID.
      *
-     * <p>에이전트 시작 시 바이트코드 조작으로 감지된 메서드 시그니처를 수집 서버에 등록하고
+     * <p>
+     * 에이전트 시작 시 바이트코드 조작으로 감지된 메서드 시그니처를 수집 서버에 등록하고
      * 발급받은 정수 ID. 매 이벤트마다 전체 메서드명 문자열 대신 이 ID만 전송해 네트워크 비용을 줄인다.
      *
      * <pre>
@@ -52,11 +55,11 @@ public class SpanEvent {
      */
     private int apiId;
 
-
     /**
      * 이벤트에 대한 부가 정보.
      *
-     * <p>키-값 형태로 다양한 데이터를 기록한다.
+     * <p>
+     * 키-값 형태로 다양한 데이터를 기록한다.
      *
      * <pre>
      * "sql"    → "SELECT * FROM users WHERE id = ?" -> 추후 해싱을 통해 최적화 예정
