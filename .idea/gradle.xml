@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
@@ -8,6 +9,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/agent-bootstrap" />
+            <option value="$PROJECT_DIR$/agent-config" />
+            <option value="$PROJECT_DIR$/agent-core" />
+            <option value="$PROJECT_DIR$/agent-distribution" />
+            <option value="$PROJECT_DIR$/agent-instrument" />
+            <option value="$PROJECT_DIR$/agent-sender" />
           </set>
         </option>
       </GradleProjectSettings>

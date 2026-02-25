@@ -1,12 +1,10 @@
-package com.seeker.context;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.seeker.agent.core.model;
 
 /**
  * 하나의 서버에서 요청을 처리하는 단위를 표현하는 클래스.
  *
- * <p>분산 환경에서 요청이 여러 서버를 거칠 경우, 각 서버마다 하나의 {@code Span}이 1개씩 생성된다.
+ * <p>
+ * 분산 환경에서 요청이 여러 서버를 거칠 경우, 각 서버마다 하나의 {@code Span}이 1개씩 생성된다.
  * 서버의 메타데이터와 처리 시간을 기록하며,
  * 내부에서 호출된 메서드들은 {@link SpanEvent} 목록으로 관리된다.
  *
@@ -21,7 +19,7 @@ public class Span {
     /** 이 스팬이 속한 트레이스 ID. */
     private final String traceId;
 
-    /** 이 스팬의 고유 ID. String 보다는 랜덤 값 같은 것을 사용할 예정*/
+    /** 이 스팬의 고유 ID. String 보다는 랜덤 값 같은 것을 사용할 예정 */
     private long spanId;
 
     /** 부모 스팬의 ID. 루트 스팬인 경우 -1. */
