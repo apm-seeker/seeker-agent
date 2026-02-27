@@ -1,2 +1,13 @@
 dependencies {
+    implementation project(':agent-instrument')
+}
+
+jar {
+    manifest {
+        attributes(
+                'Premain-Class': 'com.seeker.agent.bootstrap.AgentMain',
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
+        )
+    }
 }
