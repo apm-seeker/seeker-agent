@@ -7,45 +7,45 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TraceContextTest {
+class ThreadLocalTraceContextTest {
 
-    private TraceContext traceContext;
+    private ThreadLocalTraceContext threadLocalTraceContext;
 
     @BeforeEach
     void setUp() {
-        traceContext = new TraceContext();
+        threadLocalTraceContext = new ThreadLocalTraceContext();
     }
 
     @Test
     @DisplayName("새로운 트레이스를 생성하고 ThreadLocal에 보관한다")
     void newTraceObject() {
-        Trace trace = traceContext.newTraceObject();
+        Trace trace = threadLocalTraceContext.newTraceObject();
 
         assertNotNull(trace);
-        assertEquals(trace, traceContext.currentTraceObject());
+        assertEquals(trace, threadLocalTraceContext.currentTraceObject());
         assertNotNull(trace.getTraceId());
 
-        traceContext.removeTraceObject();
-        assertNull(traceContext.currentTraceObject());
+        threadLocalTraceContext.removeTraceObject();
+        assertNull(threadLocalTraceContext.currentTraceObject());
     }
 
     @Test
     @DisplayName("전달받은 TraceId를 사용하여 트레이스를 이어간다")
     void continueTraceObject() {
         TraceId parentId = new TraceId();
-        Trace trace = traceContext.continueTraceObject(parentId);
+        Trace trace = threadLocalTraceContext.continueTraceObject(parentId);
 
         assertNotNull(trace);
         assertEquals(parentId, trace.getTraceId());
-        assertEquals(trace, traceContext.currentTraceObject());
+        assertEquals(trace, threadLocalTraceContext.currentTraceObject());
 
-        traceContext.removeTraceObject();
+        threadLocalTraceContext.removeTraceObject();
     }
 
     @Test
     @DisplayName("TraceBlock 시작과 종료 시 SpanEvent가 올바르게 쌓인다")
     void traceBlockEvents() {
-        Trace trace = traceContext.newTraceObject();
+        Trace trace = threadLocalTraceContext.newTraceObject();
 
         trace.traceBlockBegin(); // depth 1
         trace.traceBlockBegin(); // depth 2
@@ -61,6 +61,6 @@ class TraceContextTest {
         assertEquals(2, trace.getSpan().getSpanEventList().get(0).getDepth());
         assertEquals(1, trace.getSpan().getSpanEventList().get(1).getDepth());
 
-        traceContext.removeTraceObject();
+        threadLocalTraceContext.removeTraceObject();
     }
 }
