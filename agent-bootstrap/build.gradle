@@ -1,5 +1,8 @@
 dependencies {
     implementation project(':agent-instrument')
+    implementation project(':plugins:tomcat-plugin')
+    implementation project(':plugins:httpclient-plugin')
+    implementation project(':plugins:jdbc-plugin')
 }
 
 jar {

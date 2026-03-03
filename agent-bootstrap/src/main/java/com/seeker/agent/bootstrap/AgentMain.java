@@ -1,7 +1,9 @@
 package com.seeker.agent.bootstrap;
 
 import com.seeker.agent.instrument.InstrumentEngine;
-import com.seeker.agent.instrument.sample.TestPlugin;
+import com.seeker.agent.plugin.http.HttpClientPlugin;
+import com.seeker.agent.plugin.jdbc.JdbcPlugin;
+import com.seeker.agent.plugin.was.tomcat.TomcatPlugin;
 
 import java.lang.instrument.Instrumentation;
 
@@ -20,8 +22,11 @@ public class AgentMain {
 
         InstrumentEngine engine = new InstrumentEngine();
 
-        // 테스트용 플러그인 등록
-        engine.addPlugin(new TestPlugin());
+        // TODO 기존의 하드코딩 방식의 Plugins 주입 방식을 config 방식으로 수정
+        // 플러그인 등록
+        engine.addPlugin(new TomcatPlugin());
+        engine.addPlugin(new HttpClientPlugin());
+        engine.addPlugin(new JdbcPlugin());
 
         // instrumentation 설치
         engine.install(inst);

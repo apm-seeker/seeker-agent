@@ -1,7 +1,11 @@
 package com.seeker.agent.instrument.transformer;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
+
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
 import com.seeker.agent.instrument.interceptor.InterceptorRegistry;
+import net.bytebuddy.agent.builder.AgentBuilder.Transformer;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
@@ -13,7 +17,7 @@ import java.security.ProtectionDomain;
 /**
  * Byte Buddy Advice를 사용하여 대상 메서드에 인터셉터를 적용하는 기본 트랜스포머입니다.
  */
-public class BaseTransformer implements net.bytebuddy.agent.builder.AgentBuilder.Transformer {
+public class BaseTransformer implements Transformer {
 
     private final String interceptorClassName;
 
@@ -58,7 +62,7 @@ public class BaseTransformer implements net.bytebuddy.agent.builder.AgentBuilder
         public static void onExit(@InterceptorName String interceptorName,
                 @Advice.This(optional = true) Object target,
                 @Advice.AllArguments Object[] args,
-                @Advice.Return(readOnly = false, typing = net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC) Object result,
+                @Advice.Return(readOnly = false, typing = DYNAMIC) Object result,
                 @Advice.Thrown Throwable throwable) {
             AroundInterceptor interceptor = InterceptorRegistry.getInterceptor(interceptorName);
             if (interceptor != null) {
@@ -70,7 +74,7 @@ public class BaseTransformer implements net.bytebuddy.agent.builder.AgentBuilder
     /**
      * Advice에 인터셉터 이름을 전달하기 위한 커스텀 어노테이션입니다.
      */
-    @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+    @java.lang.annotation.Retention(RUNTIME)
     public @interface InterceptorName {
     }
 }
