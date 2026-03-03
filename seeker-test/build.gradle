@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.3'
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+}
+
+tasks.register('runTest', JavaExec) {
+    group = "verification"
+    mainClass = 'com.seeker.test.TestApplication'
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = ["-javaagent:${project(':agent-bootstrap').layout.buildDirectory.file('libs/agent-bootstrap-1.0-SNAPSHOT.jar').get().asFile.absolutePath}"]
+}

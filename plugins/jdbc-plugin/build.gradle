@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(':agent-instrument')
+    implementation project(':agent-core')
+    implementation 'net.bytebuddy:byte-buddy:1.14.12'
+    implementation 'net.bytebuddy:byte-buddy-agent:1.14.12'
+}
