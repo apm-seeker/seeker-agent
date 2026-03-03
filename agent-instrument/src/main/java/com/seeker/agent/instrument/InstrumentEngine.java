@@ -1,8 +1,8 @@
 package com.seeker.agent.instrument;
 
+import com.seeker.agent.instrument.matcher.StandardMatchers;
 import com.seeker.agent.instrument.plugin.Plugin;
 import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.dynamic.scaffold.TypeValidation;
 
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
@@ -31,8 +31,7 @@ public class InstrumentEngine {
      */
     public void install(Instrumentation instrumentation) {
         AgentBuilder agentBuilder = new AgentBuilder.Default()
-//                .with(TypeValidation.DISABLED) // 성능 향상을 위해 타입 검증 비활성화
-                .ignore(net.bytebuddy.matcher.ElementMatchers.nameStartsWith("com.seeker.agent.")); // 에이전트 자체는 제외
+                .ignore(StandardMatchers.ignoreClasses()); // 공통 제외 규칙 적용
 
         for (Plugin plugin : plugins) {
             agentBuilder = plugin.transform(agentBuilder);
