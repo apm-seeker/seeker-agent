@@ -2,6 +2,7 @@ package com.seeker.agent.plugin.was.tomcat;
 
 import com.seeker.agent.core.context.TraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
+import com.seeker.agent.core.context.TraceId;
 import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
 import org.apache.catalina.connector.Request;
@@ -19,12 +20,12 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         // Distributed Tracing: Extract single header context from Request object
         // (args[0])
-        com.seeker.agent.core.context.TraceId tid = null;
+        TraceId tid = null;
 
         if (args != null && args.length > 0 && args[0] instanceof Request) {
             Request request = (Request) args[0];
             String encodedContext = request.getHeader("Seeker-Context");
-            tid = com.seeker.agent.core.context.TraceId.decode(encodedContext);
+            tid = TraceId.decode(encodedContext);
         }
 
         if (context.currentTraceObject() == null) {
@@ -48,7 +49,9 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         Trace trace = context.currentTraceObject();
 
         if (trace != null) {
-            System.out.println("[Seeker] Tomcat 요청 처리 완료: " + trace.getTraceId());
+            trace.finish(); // 전체 소요 시간 기록
+            System.out.println("[Seeker] Tomcat 요청 처리 완료: " + trace.getTraceId() + " (elapsed: "
+                    + trace.getSpan().getElapsedTime() + "ms)");
             context.removeTraceObject();
         }
     }

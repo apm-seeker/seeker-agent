@@ -19,8 +19,8 @@ public class Trace {
         this.startTime = startTime;
 
         // 트레이스 생성 시 루트 스팬도 함께 생성
-        // TODO : span에 해당하는 IP는 실제 호츌하는 IP값으로 변경 예정
-        this.span = new Span(traceId, "127.0.0.1");
+        // TODO : span에 해당하는 IP는 실제 호출하는 IP값으로 변경 예정
+        this.span = new Span(traceId, "127.0.0.1", startTime);
     }
 
     public TraceId getTraceId() {
@@ -36,7 +36,14 @@ public class Trace {
     }
 
     /**
-     * 트레이스를 시작할 때 호출합니다.
+     * 트레이스의 모든 작업이 완료되었을 때 호출합니다.
+     */
+    public void finish() {
+        this.span.finish();
+    }
+
+    /**
+     * 트레이스 블록을 시작할 때 호출합니다.
      */
     public void traceBlockBegin() {
         traceBlockBegin(null, null);

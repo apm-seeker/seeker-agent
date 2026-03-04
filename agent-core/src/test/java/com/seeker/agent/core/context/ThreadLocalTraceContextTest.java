@@ -1,6 +1,5 @@
 package com.seeker.agent.core.context;
 
-import com.seeker.agent.core.model.SpanEvent;
 import com.seeker.agent.core.model.Trace;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
