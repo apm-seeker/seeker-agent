@@ -19,7 +19,7 @@ public class ServiceInterceptor implements AroundInterceptor {
 
         if (trace != null) {
             System.out.println("[Seeker] Service 실행 감지: " + className + "." + methodName + " 시작");
-            trace.traceBlockBegin();
+            trace.traceBlockBegin(className, methodName);
         }
     }
 
@@ -30,7 +30,7 @@ public class ServiceInterceptor implements AroundInterceptor {
         Trace trace = context.currentTraceObject();
 
         if (trace != null) {
-            trace.traceBlockEnd();
+            trace.traceBlockEnd(throwable);
             System.out.println("[Seeker] Service 실행 완료: " + className + "." + methodName + " 종료");
         }
     }
