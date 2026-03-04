@@ -4,6 +4,7 @@ import com.seeker.agent.core.context.TraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
 import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
+import org.apache.catalina.connector.Request;
 
 /**
  * Tomcat StandardHostValve.invoke 메서드를 가로채서 웹 요청의 시작과 끝을 추적하는 인터셉터입니다.
@@ -15,9 +16,28 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         System.out.println("[Seeker] Tomcat 요청 수신: StandardHostValve.invoke 시작");
 
         TraceContext context = TraceContextHolder.getContext();
+
+        // Distributed Tracing: Extract single header context from Request object
+        // (args[0])
+        com.seeker.agent.core.context.TraceId tid = null;
+
+        if (args != null && args.length > 0 && args[0] instanceof Request) {
+            Request request = (Request) args[0];
+            String encodedContext = request.getHeader("Seeker-Context");
+            tid = com.seeker.agent.core.context.TraceId.decode(encodedContext);
+        }
+
         if (context.currentTraceObject() == null) {
-            Trace trace = context.newTraceObject();
-            System.out.println("[Seeker] 새로운 Trace 시작: " + trace.getTraceId());
+            Trace trace;
+            if (tid != null) {
+                // Continue existing trace
+                trace = context.newTraceObject(tid);
+                System.out.println("[Seeker] 기존 Trace 이어받음: " + trace.getTraceId());
+            } else {
+                // Start new trace
+                trace = context.newTraceObject();
+                System.out.println("[Seeker] 새로운 Trace 시작: " + trace.getTraceId());
+            }
         }
     }
 
