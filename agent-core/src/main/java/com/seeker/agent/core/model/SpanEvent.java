@@ -55,6 +55,15 @@ public class SpanEvent {
      */
     private int apiId;
 
+    /** 호출된 클래스명. */
+    private String className;
+
+    /** 호출된 메서드명. */
+    private String methodName;
+
+    /** 발생한 예외 정보 (없으면 null). */
+    private String exception;
+
     /**
      * 이벤트에 대한 부가 정보.
      *
@@ -62,7 +71,8 @@ public class SpanEvent {
      * 키-값 형태로 다양한 데이터를 기록한다.
      *
      * <pre>
-     * "sql"    → "SELECT * FROM users WHERE id = ?" -> 추후 해싱을 통해 최적화 예정
+     * "sql"    → "SELECT * FROM users WHERE id = ?"
+     * "url"    → "http://localhost:8081/api/data"
      * </pre>
      */
     private Map<String, String> attributes;
@@ -132,12 +142,36 @@ public class SpanEvent {
         this.depth = depth;
     }
 
-    public int getApiId() {
-        return apiId;
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public String getException() {
+        return exception;
+    }
+
+    public void setException(String exception) {
+        this.exception = exception;
     }
 
     public Map<String, String> getAttributes() {
         return attributes;
+    }
+
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
     }
 
     @Override

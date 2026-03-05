@@ -4,8 +4,6 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
-
 /**
  * 인스트루멘테이션 대상에서 제외할 표준 규칙들을 정의하는 클래스입니다.
  */

@@ -50,10 +50,38 @@ public class TraceId {
         return parentSpanId;
     }
 
-
-
     private static long generateId() {
         return ThreadLocalRandom.current().nextLong();
+    }
+
+    public static TraceId from(String traceId, String spanIdStr, String parentSpanIdStr) {
+        long spanId = (spanIdStr != null) ? Long.parseLong(spanIdStr) : generateId();
+        long parentSpanId = (parentSpanIdStr != null) ? Long.parseLong(parentSpanIdStr) : -1;
+        return new TraceId(traceId, spanId, parentSpanId);
+    }
+
+    /**
+     * TraceId 정보를 하나의 문자열로 인코딩합니다. (traceId,spanId,parentSpanId)
+     */
+    public String encode() {
+        return traceId + "," + spanId + "," + parentSpanId;
+    }
+
+    /**
+     * 인코딩된 문자열로부터 TraceId 객체를 복구합니다.
+     */
+    public static TraceId decode(String encoded) {
+        if (encoded == null || encoded.isEmpty())
+            return null;
+        try {
+            String[] parts = encoded.split(",");
+            if (parts.length >= 3) {
+                return new TraceId(parts[0], Long.parseLong(parts[1]), Long.parseLong(parts[2]));
+            }
+        } catch (Exception ignored) {
+            // TODO 에러가 발생했을때 예외 처리
+        }
+        return null;
     }
 
     @Override

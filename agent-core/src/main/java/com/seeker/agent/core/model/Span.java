@@ -15,9 +15,9 @@ public class Span {
     private final String remoteAddr;
     private final List<SpanEvent> spanEventList = new ArrayList<>();
 
-    public Span(TraceId traceId, String remoteAddr) {
+    public Span(TraceId traceId, String remoteAddr, long startTime) {
         this.traceId = traceId;
-        this.startTime = System.currentTimeMillis();
+        this.startTime = startTime;
         this.remoteAddr = remoteAddr;
     }
 

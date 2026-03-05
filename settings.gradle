@@ -5,3 +5,12 @@ include 'agent-core'
 include 'agent-instrument'
 include 'agent-sender'
 include 'agent-config'
+
+// Plugins
+include 'plugins:tomcat-plugin'
+include 'plugins:httpclient-plugin'
+include 'plugins:jdbc-plugin'
+include 'plugins:service-plugin'
+
+// Test
+include 'seeker-test'

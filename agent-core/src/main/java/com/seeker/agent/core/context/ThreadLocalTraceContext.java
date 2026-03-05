@@ -1,6 +1,8 @@
 package com.seeker.agent.core.context;
 
 import com.seeker.agent.core.model.Trace;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * Trace의 생명주기 전체를 관리하는 핵심 클래스.
@@ -9,6 +11,7 @@ import com.seeker.agent.core.model.Trace;
 public class ThreadLocalTraceContext implements TraceContext {
 
     private final ThreadLocal<Trace> traceHolder = new ThreadLocal<>();
+    private final Map<String, Scope> scopes = new ConcurrentHashMap<>();
 
     public ThreadLocalTraceContext() {
     }
@@ -27,7 +30,8 @@ public class ThreadLocalTraceContext implements TraceContext {
     /**
      * 외부(부모)로부터 전달받은 TraceId를 이어받아 트레이스를 생성합니다.
      */
-    public Trace continueTraceObject(TraceId traceId) {
+    @Override
+    public Trace newTraceObject(TraceId traceId) {
         Trace trace = new Trace(traceId, System.currentTimeMillis());
         traceHolder.set(trace);
         return trace;
@@ -57,5 +61,10 @@ public class ThreadLocalTraceContext implements TraceContext {
     @Override
     public void removeTraceObject() {
         traceHolder.remove();
+    }
+
+    @Override
+    public Scope getScope(String name) {
+        return scopes.computeIfAbsent(name, DefaultScope::new);
     }
 }

@@ -1,8 +1,10 @@
 dependencies {
+    implementation project(':agent-core')
     implementation project(':agent-instrument')
     implementation project(':plugins:tomcat-plugin')
     implementation project(':plugins:httpclient-plugin')
     implementation project(':plugins:jdbc-plugin')
+    implementation project(':plugins:service-plugin')
 }
 
 jar {
@@ -13,4 +15,8 @@ jar {
                 'Can-Retransform-Classes': 'true'
         )
     }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

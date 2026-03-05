@@ -33,7 +33,7 @@ class ThreadLocalTraceContextTest {
     @DisplayName("전달받은 TraceId를 사용하여 트레이스를 이어간다")
     void continueTraceObject() {
         TraceId parentId = new TraceId();
-        Trace trace = threadLocalTraceContext.continueTraceObject(parentId);
+        Trace trace = threadLocalTraceContext.newTraceObject(parentId);
 
         assertNotNull(trace);
         assertEquals(parentId, trace.getTraceId());

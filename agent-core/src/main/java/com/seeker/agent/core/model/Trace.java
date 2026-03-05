@@ -19,8 +19,8 @@ public class Trace {
         this.startTime = startTime;
 
         // 트레이스 생성 시 루트 스팬도 함께 생성
-        // TODO : span에 해당하는 IP는 실제 호츌하는 IP값으로 변경 예정
-        this.span = new Span(traceId, "127.0.0.1");
+        // TODO : span에 해당하는 IP는 실제 호출하는 IP값으로 변경 예정
+        this.span = new Span(traceId, "127.0.0.1", startTime);
     }
 
     public TraceId getTraceId() {
@@ -36,27 +36,52 @@ public class Trace {
     }
 
     /**
-     * 트레이스를 시작할 때 호출합니다.
-     * 새로운 SpanEvent를 생성하여 스택에 쌓습니다.
+     * 트레이스의 모든 작업이 완료되었을 때 호출합니다.
+     */
+    public void finish() {
+        this.span.finish();
+    }
+
+    /**
+     * 트레이스 블록을 시작할 때 호출합니다.
      */
     public void traceBlockBegin() {
+        traceBlockBegin(null, null);
+    }
+
+    public void traceBlockBegin(String className, String methodName) {
         SpanEvent event = new SpanEvent();
         event.markStartTime();
+        event.setClassName(className);
+        event.setMethodName(methodName);
         event.setDepth(spanEventStack.size() + 1);
         spanEventStack.push(event);
     }
 
     /**
      * 트레이스 블록을 종료할 때 호출합니다.
-     * 스택에서 이벤트를 꺼내 처리를 완료하고 스팬에 추가합니다.
      */
     public void traceBlockEnd() {
+        traceBlockEnd(null);
+    }
+
+    public void traceBlockEnd(Throwable throwable) {
         SpanEvent event = spanEventStack.poll();
         if (event != null) {
             event.finish();
+            if (throwable != null) {
+                event.setException(throwable.toString());
+            }
             event.setSequence(span.getSpanEventList().size());
             span.addSpanEvent(event);
         }
+    }
+
+    /**
+     * 현재 활성화된(가장 최근의) SpanEvent를 반환합니다.
+     */
+    public SpanEvent currentSpanEvent() {
+        return spanEventStack.peek();
     }
 
     @Override
