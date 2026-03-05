@@ -133,6 +133,10 @@ public class SpanEvent {
         return sequence;
     }
 
+    public int getApiId(){
+        return apiId;
+    }
+
     public void setSequence(int sequence) {
         this.sequence = sequence;
     }

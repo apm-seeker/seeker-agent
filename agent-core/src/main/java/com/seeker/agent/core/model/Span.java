@@ -54,6 +54,10 @@ public class Span {
         return elapsedTime;
     }
 
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+
     public List<SpanEvent> getSpanEventList() {
         return spanEventList;
     }
