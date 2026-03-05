@@ -40,6 +40,7 @@ public class Trace {
      */
     public void finish() {
         this.span.finish();
+        com.seeker.agent.core.sender.DataSenderHolder.getSender().send(this.span);
     }
 
     /**

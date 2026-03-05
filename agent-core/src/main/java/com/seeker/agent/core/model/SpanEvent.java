@@ -43,17 +43,20 @@ public class SpanEvent {
     private int elapsedTime;
 
     /**
+     * TODO 현재는 className과 methodName을 string으로 관리를 하고있지만 추루 apiId로 수정을 해야한다.
      * 호출된 API의 ID.
-     *
-     * <p>
-     * 에이전트 시작 시 바이트코드 조작으로 감지된 메서드 시그니처를 수집 서버에 등록하고
-     * 발급받은 정수 ID. 매 이벤트마다 전체 메서드명 문자열 대신 이 ID만 전송해 네트워크 비용을 줄인다.
-     *
-     * <pre>
-     * apiId: 101  →  "com.example.UserController.getUser(HttpServletRequest)"
-     * </pre>
+     * /** API ID (수집 서버에서 관리되는 API 구분자).
      */
     private int apiId;
+
+    /** 서비스 타입 코드 (JDBC, TOMCAT 등). */
+    private int serviceType;
+
+    /** 목적지 ID (DB 이름, 외부 API 서버 주소 등). */
+    private String destinationId;
+
+    /** 다음 서버로 전파할 스팬 ID. */
+    private long nextSpanId = -1;
 
     /** 호출된 클래스명. */
     private String className;
@@ -174,6 +177,30 @@ public class SpanEvent {
         this.apiId = apiId;
     }
 
+    public int getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(int serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getDestinationId() {
+        return destinationId;
+    }
+
+    public void setDestinationId(String destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public long getNextSpanId() {
+        return nextSpanId;
+    }
+
+    public void setNextSpanId(long nextSpanId) {
+        this.nextSpanId = nextSpanId;
+    }
+
     @Override
     public String toString() {
         return "SpanEvent{" +
@@ -182,6 +209,9 @@ public class SpanEvent {
                 ", startTime=" + startTime +
                 ", elapsedTime=" + elapsedTime +
                 ", apiId=" + apiId +
+                ", serviceType=" + serviceType +
+                ", destinationId='" + destinationId + '\'' +
+                ", nextSpanId=" + nextSpanId +
                 ", attributes=" + attributes +
                 '}';
     }

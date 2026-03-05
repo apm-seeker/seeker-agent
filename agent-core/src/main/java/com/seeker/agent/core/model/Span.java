@@ -13,6 +13,12 @@ public class Span {
     private final long startTime;
     private int elapsedTime;
     private final String remoteAddr;
+    private String agentId;
+    private String applicationName;
+    private String rpc;
+    private String endPoint;
+    private int serviceType;
+    private String exceptionInfo;
     private final List<SpanEvent> spanEventList = new ArrayList<>();
 
     public Span(TraceId traceId, String remoteAddr, long startTime) {
@@ -23,6 +29,13 @@ public class Span {
 
     public void finish() {
         this.elapsedTime = (int) (System.currentTimeMillis() - this.startTime);
+    }
+
+    public void finish(Throwable throwable) {
+        finish();
+        if (throwable != null) {
+            this.exceptionInfo = throwable.toString();
+        }
     }
 
     public void addSpanEvent(SpanEvent event) {
@@ -41,12 +54,56 @@ public class Span {
         return elapsedTime;
     }
 
-    public String getRemoteAddr() {
-        return remoteAddr;
-    }
-
     public List<SpanEvent> getSpanEventList() {
         return spanEventList;
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public String getRpc() {
+        return rpc;
+    }
+
+    public void setRpc(String rpc) {
+        this.rpc = rpc;
+    }
+
+    public String getEndPoint() {
+        return endPoint;
+    }
+
+    public void setEndPoint(String endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    public int getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(int serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getExceptionInfo() {
+        return exceptionInfo;
+    }
+
+    public void setExceptionInfo(String exceptionInfo) {
+        this.exceptionInfo = exceptionInfo;
     }
 
     @Override
