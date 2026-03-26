@@ -5,10 +5,9 @@ import com.seeker.agent.core.sender.DataSender;
 import com.seeker.collector.global.grpc.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import org.jctools.queues.MpscArrayQueue;
-
-import java.util.concurrent.TimeUnit;
+import org.jctools.queues.MpscBlockingConsumerArrayQueue;
 
 /**
  * gRPC를 이용해 비동기로 데이터를 전송하는 DataSender 구현체입니다.
@@ -16,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class AsyncGrpcDataSender implements DataSender {
 
     private final GrpcDataMessageConverter converter;
-    private final MpscArrayQueue<Span> queue;
+    private final MpscBlockingConsumerArrayQueue<Span> queue;
     private final ManagedChannel channel;
     private final CollectorServiceGrpc.CollectorServiceStub stub;
     private volatile StreamObserver<DataMessage> requestObserver;
@@ -29,7 +28,7 @@ public class AsyncGrpcDataSender implements DataSender {
 
     public AsyncGrpcDataSender(String host, int port, String applicationName, String agentId) {
         this.converter = new GrpcDataMessageConverter(applicationName, agentId);
-        this.queue = new MpscArrayQueue<>(1024 * 8); // 8k capacity
+        this.queue = new MpscBlockingConsumerArrayQueue<>(1024 * 8); // 8k capacity
         // gRPC 서버와 연동
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
@@ -52,11 +51,7 @@ public class AsyncGrpcDataSender implements DataSender {
     private void run() {
         while (running) {
             try {
-                Span span = queue.poll();
-                if (span == null) {
-                    TimeUnit.MILLISECONDS.sleep(10);
-                    continue;
-                }
+                Span span = queue.take();
 
                 ensureStream();
                 requestObserver.onNext(converter.toDataMessage(span));
@@ -80,7 +75,11 @@ public class AsyncGrpcDataSender implements DataSender {
 
                 @Override
                 public void onError(Throwable t) {
-                    System.err.println("[Seeker] gRPC 스트림 에러: " + t.getMessage());
+                    Status status = Status.fromThrowable(t);
+                    System.err.println("[Seeker] gRPC 스트림 에러 - Code: " + status.getCode()
+                            + ", Description: " + status.getDescription()
+                            + ", Cause: " + (status.getCause() != null ? status.getCause().getMessage() : "none"));
+                    t.printStackTrace(System.err);
                     resetStream();
                 }
 
