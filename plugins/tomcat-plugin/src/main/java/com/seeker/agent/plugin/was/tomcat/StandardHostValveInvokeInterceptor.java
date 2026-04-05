@@ -3,6 +3,8 @@ package com.seeker.agent.plugin.was.tomcat;
 import com.seeker.agent.core.context.TraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
 import com.seeker.agent.core.context.TraceId;
+import com.seeker.agent.core.model.ServiceType;
+import com.seeker.agent.core.model.Span;
 import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
 import org.apache.catalina.connector.Request;
@@ -38,6 +40,15 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 // Start new trace
                 trace = context.newTraceObject();
                 System.out.println("[Seeker] 새로운 Trace 시작: " + trace.getTraceId());
+            }
+
+            // Metadata 주입
+            Span span = trace.getSpan();
+            span.setServiceType(ServiceType.TOMCAT.getCode());
+            if (args != null && args.length > 0 && args[0] instanceof Request) {
+                Request request = (Request) args[0];
+                span.setRpc(request.getRequestURI());
+                span.setEndPoint(request.getLocalAddr() + ":" + request.getLocalPort());
             }
         }
     }

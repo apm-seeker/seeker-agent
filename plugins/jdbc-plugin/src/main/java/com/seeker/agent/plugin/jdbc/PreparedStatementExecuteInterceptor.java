@@ -4,6 +4,7 @@ import com.seeker.agent.core.context.SqlMetadataAccessor;
 import com.seeker.agent.core.context.Scope;
 import com.seeker.agent.core.context.TraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
+import com.seeker.agent.core.model.ServiceType;
 import com.seeker.agent.core.model.SpanEvent;
 import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
@@ -27,12 +28,16 @@ public class PreparedStatementExecuteInterceptor implements AroundInterceptor {
             System.out.println("[Seeker] JDBC 쿼리 실행 감지: " + className + "." + methodName + " 시작");
             trace.traceBlockBegin(className, methodName);
 
+            SpanEvent event = trace.currentSpanEvent();
+            if (event != null) {
+                event.setServiceType(ServiceType.JDBC.getCode());
+            }
+
             // Accessor를 통해 깔끔한 SQL 추출
             if (target instanceof SqlMetadataAccessor) {
                 String sql = ((SqlMetadataAccessor) target)._$seeker$getSql();
                 if (sql != null) {
                     System.out.println(sql);
-                    SpanEvent event = trace.currentSpanEvent();
                     if (event != null) {
                         event.addAttribute("sql", sql);
                     }
