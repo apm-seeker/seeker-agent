@@ -3,6 +3,7 @@ package com.seeker.agent.core.model;
 import com.seeker.agent.core.context.TraceId;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import com.seeker.agent.core.model.MethodType;
 
 /**
  * 사용자의 단일 요청을 표현하는 트레이스.
@@ -53,8 +54,9 @@ public class Trace {
     public void traceBlockBegin(String className, String methodName) {
         SpanEvent event = new SpanEvent();
         event.markStartTime();
-        event.setClassName(className);
-        event.setMethodName(methodName);
+        event.addAttribute("className", className);
+        event.addAttribute("methodName", methodName);
+        event.setMethodType(MethodType.USER_METHOD.getCode());
         event.setDepth(spanEventStack.size() + 1);
         spanEventStack.push(event);
     }

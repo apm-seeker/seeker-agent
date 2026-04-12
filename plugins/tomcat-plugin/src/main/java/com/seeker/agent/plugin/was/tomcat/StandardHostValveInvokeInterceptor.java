@@ -20,8 +20,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         TraceContext context = TraceContextHolder.getContext();
 
-        // Distributed Tracing: Extract single header context from Request object
-        // (args[0])
+        // 분산 트레이싱: 요청 헤더에서 컨텍스트 추출
         TraceId tid = null;
 
         if (args != null && args.length > 0 && args[0] instanceof Request) {
@@ -33,21 +32,23 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         if (context.currentTraceObject() == null) {
             Trace trace;
             if (tid != null) {
-                // Continue existing trace
+                // 기존 트레이스 이어받기
                 trace = context.newTraceObject(tid);
                 System.out.println("[Seeker] 기존 Trace 이어받음: " + trace.getTraceId());
             } else {
-                // Start new trace
+                // 새로운 트레이스 시작
                 trace = context.newTraceObject();
                 System.out.println("[Seeker] 새로운 Trace 시작: " + trace.getTraceId());
             }
 
-            // Metadata 주입
+            // 루트 스팬에 메타데이터 주입
             Span span = trace.getSpan();
+            // 서비스 타입을 TOMCAT으로 설정
             span.setServiceType(ServiceType.TOMCAT.getCode());
             if (args != null && args.length > 0 && args[0] instanceof Request) {
                 Request request = (Request) args[0];
-                span.setRpc(request.getRequestURI());
+                // 요청 URI 및 엔드포인트 정보 설정
+                span.setUri(request.getRequestURI());
                 span.setEndPoint(request.getLocalAddr() + ":" + request.getLocalPort());
             }
         }
@@ -60,9 +61,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         Trace trace = context.currentTraceObject();
 
         if (trace != null) {
-            trace.finish(); // 전체 소요 시간 기록
+            // 전체 트레이스 종료 및 데이터 전송
+            trace.finish();
             System.out.println("[Seeker] Tomcat 요청 처리 완료: " + trace.getTraceId() + " (elapsed: "
                     + trace.getSpan().getElapsedTime() + "ms)");
+            // 스레드 로컬 컨텍스트 제거
             context.removeTraceObject();
         }
     }

@@ -47,22 +47,22 @@ public class SpanEvent {
      * 호출된 API의 ID.
      * /** API ID (수집 서버에서 관리되는 API 구분자).
      */
-    private int apiId;
+    //private int apiId;
 
     /** 서비스 타입 코드 (JDBC, TOMCAT 등). */
-    private int serviceType;
+    private int methodType;
 
     /** 목적지 ID (DB 이름, 외부 API 서버 주소 등). */
-    private String destinationId;
+//    private String destinationId;
 
     /** 다음 서버로 전파할 스팬 ID. */
-    private long nextSpanId = -1;
+//    private long nextSpanId = -1;
 
-    /** 호출된 클래스명. */
-    private String className;
-
-    /** 호출된 메서드명. */
-    private String methodName;
+//    /** 호출된 클래스명. */
+//    private String className;
+//
+//    /** 호출된 메서드명. */
+//    private String methodName;
 
     /** 발생한 예외 정보 (없으면 null). */
     private String exception;
@@ -76,6 +76,10 @@ public class SpanEvent {
      * <pre>
      * "sql"    → "SELECT * FROM users WHERE id = ?"
      * "url"    → "http://localhost:8081/api/data"
+     * "className" → "userController"
+     * "methodName" → "getUser"
+     * "nextSpanId" → "1"
+     * "destinationId" -> "2"
      * </pre>
      */
     private Map<String, String> attributes;
@@ -133,9 +137,9 @@ public class SpanEvent {
         return sequence;
     }
 
-    public int getApiId(){
-        return apiId;
-    }
+//    public int getApiId(){
+//        return apiId;
+//    }
 
     public void setSequence(int sequence) {
         this.sequence = sequence;
@@ -149,21 +153,21 @@ public class SpanEvent {
         this.depth = depth;
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
+//    public String getClassName() {
+//        return className;
+//    }
+//
+//    public void setClassName(String className) {
+//        this.className = className;
+//    }
+//
+//    public String getMethodName() {
+//        return methodName;
+//    }
+//
+//    public void setMethodName(String methodName) {
+//        this.methodName = methodName;
+//    }
 
     public String getException() {
         return exception;
@@ -177,33 +181,33 @@ public class SpanEvent {
         return attributes;
     }
 
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
+//    public void setApiId(int apiId) {
+//        this.apiId = apiId;
+//    }
+
+    public int getMethodType() {
+        return methodType;
     }
 
-    public int getServiceType() {
-        return serviceType;
+    public void setMethodType(int methodType) {
+        this.methodType = methodType;
     }
 
-    public void setServiceType(int serviceType) {
-        this.serviceType = serviceType;
-    }
-
-    public String getDestinationId() {
-        return destinationId;
-    }
-
-    public void setDestinationId(String destinationId) {
-        this.destinationId = destinationId;
-    }
-
-    public long getNextSpanId() {
-        return nextSpanId;
-    }
-
-    public void setNextSpanId(long nextSpanId) {
-        this.nextSpanId = nextSpanId;
-    }
+//    public String getDestinationId() {
+//        return destinationId;
+//    }
+//
+//    public void setDestinationId(String destinationId) {
+//        this.destinationId = destinationId;
+//    }
+//
+//    public long getNextSpanId() {
+//        return nextSpanId;
+//    }
+//
+//    public void setNextSpanId(long nextSpanId) {
+//        this.nextSpanId = nextSpanId;
+//    }
 
     @Override
     public String toString() {
@@ -212,10 +216,10 @@ public class SpanEvent {
                 ", depth=" + depth +
                 ", startTime=" + startTime +
                 ", elapsedTime=" + elapsedTime +
-                ", apiId=" + apiId +
-                ", serviceType=" + serviceType +
-                ", destinationId='" + destinationId + '\'' +
-                ", nextSpanId=" + nextSpanId +
+//                ", apiId=" + apiId +
+                ", methodType=" + methodType +
+//                ", destinationId='" + destinationId + '\'' +
+//                ", nextSpanId=" + nextSpanId +
                 ", attributes=" + attributes +
                 '}';
     }

@@ -28,14 +28,14 @@ public class GrpcDataMessageConverter {
                 .setStartTime(span.getStartTime())
                 .setElapsedTime(span.getElapsedTime())
                 .setRemoteAddr(span.getRemoteAddr() != null ? span.getRemoteAddr() : "")
-                .setRpc(span.getRpc() != null ? span.getRpc() : "")
+                .setUri(span.getUri() != null ? span.getUri() : "")
                 .setEndPoint(span.getEndPoint() != null ? span.getEndPoint() : "")
                 .setServiceType(span.getServiceType())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId);
 
         if (span.getExceptionInfo() != null) {
-            // Span 모델에 exceptionInfo가 있을 경우 처리 (필요시 Protobuf 스키마 확장 고려)
+            spanBuilder.setExceptionInfo(span.getExceptionInfo());
         }
 
         for (SpanEvent event : span.getSpanEventList()) {
@@ -48,16 +48,18 @@ public class GrpcDataMessageConverter {
     }
 
     private com.seeker.collector.global.grpc.SpanEvent toSpanEventMessage(SpanEvent event) {
-        return com.seeker.collector.global.grpc.SpanEvent.newBuilder()
+        com.seeker.collector.global.grpc.SpanEvent.Builder eventBuilder = com.seeker.collector.global.grpc.SpanEvent.newBuilder()
                 .setSequence(event.getSequence())
                 .setDepth(event.getDepth())
                 .setStartTime(event.getStartTime())
-                .setEndElapsed(event.getElapsedTime())
-                .setServiceType(event.getServiceType())
-                .setDestinationId(event.getDestinationId() != null ? event.getDestinationId() : "")
-                .setNextSpanId(event.getNextSpanId())
-                .setApiId(event.getApiId())
-                .setExceptionInfo(event.getException() != null ? event.getException() : "")
-                .build();
+                .setElapsedTime(event.getElapsedTime())
+                .setMethodType(event.getMethodType())
+                .setExceptionInfo(event.getException() != null ? event.getException() : "");
+
+        if (event.getAttributes() != null) {
+            eventBuilder.putAllAttributes(event.getAttributes());
+        }
+
+        return eventBuilder.build();
     }
 }

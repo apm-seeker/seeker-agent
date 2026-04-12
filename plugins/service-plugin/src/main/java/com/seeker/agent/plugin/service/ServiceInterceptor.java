@@ -2,6 +2,7 @@ package com.seeker.agent.plugin.service;
 
 import com.seeker.agent.core.context.TraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
+import com.seeker.agent.core.model.SpanEvent;
 import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
 
@@ -19,6 +20,7 @@ public class ServiceInterceptor implements AroundInterceptor {
 
         if (trace != null) {
             System.out.println("[Seeker] Service 실행 감지: " + className + "." + methodName + " 시작");
+            // 일반 서비스 메서드 추적 시작 (기본 USER_METHOD 타입)
             trace.traceBlockBegin(className, methodName);
         }
     }
@@ -30,6 +32,7 @@ public class ServiceInterceptor implements AroundInterceptor {
         Trace trace = context.currentTraceObject();
 
         if (trace != null) {
+            // 서비스 메서드 추적 종료 및 예외 정보 기록
             trace.traceBlockEnd(throwable);
             System.out.println("[Seeker] Service 실행 완료: " + className + "." + methodName + " 종료");
         }
