@@ -15,7 +15,7 @@ public class Span {
     private final String remoteAddr;
     private String agentId;
     private String applicationName;
-    private String rpc;
+    private String uri;
     private String endPoint;
     private int serviceType;
     private String exceptionInfo;
@@ -78,12 +78,12 @@ public class Span {
         this.applicationName = applicationName;
     }
 
-    public String getRpc() {
-        return rpc;
+    public String getUri() {
+        return uri;
     }
 
-    public void setRpc(String rpc) {
-        this.rpc = rpc;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public String getEndPoint() {
