@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.mysql:mysql-connector-j'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+//tasks.register('runGateway', JavaExec) {
+//    dependsOn ':agent-bootstrap:jar'
+//    group = "verification"
+//    mainClass = 'com.seeker.test2.Test2Application'
+//    classpath = sourceSets.main.runtimeClasspath
+//    jvmArgs = [
+//        "-javaagent:${project(':agent-bootstrap').layout.buildDirectory.file('libs/agent-bootstrap-1.0-SNAPSHOT.jar').get().asFile.absolutePath}",
+//        "-Dserver.port=8081",
+//        "-Dspring.application.name=Gateway",
+//        "-Dseeker.config=${projectDir}/config/gateway.config"
+//    ]
+//}
+//
+//tasks.register('runBackend', JavaExec) {
+//    dependsOn ':agent-bootstrap:jar'
+//    group = "verification"
+//    mainClass = 'com.seeker.test2.Test2Application'
+//    classpath = sourceSets.main.runtimeClasspath
+//    jvmArgs = [
+//        "-javaagent:${project(':agent-bootstrap').layout.buildDirectory.file('libs/agent-bootstrap-1.0-SNAPSHOT.jar').get().asFile.absolutePath}",
+//        "-Dserver.port=8082",
+//        "-Dspring.application.name=Backend",
+//        "-Dseeker.config=${projectDir}/config/backend.config"
+//    ]
+//}

@@ -1,0 +1,38 @@
+plugins {
+    id 'com.gradleup.shadow' version '8.3.6'
+}
+
+dependencies {
+    implementation project(':agent-config')
+    implementation project(':agent-core')
+    implementation project(':agent-instrument')
+    implementation project(':agent-sender')
+    implementation project(':plugins:tomcat-plugin')
+    implementation project(':plugins:httpclient-plugin')
+    implementation project(':plugins:jdbc-plugin')
+    implementation project(':plugins:service-plugin')
+}
+
+shadowJar {
+    archiveClassifier.set('')
+
+    manifest {
+        attributes(
+                'Premain-Class': 'com.seeker.agent.bootstrap.AgentMain',
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
+        )
+    }
+
+//    // gRPC 및 관련 라이브러리가 타겟 애플리케이션의 라이브러리와 충돌하지 않도록 패키지 재배치(Relocation) 설정
+//    relocate 'io.grpc', 'com.seeker.agent.shaded.io.grpc'
+//    relocate 'io.netty', 'com.seeker.agent.shaded.io.netty'
+//    relocate 'com.google.protobuf', 'com.seeker.agent.shaded.com.google.protobuf'
+//    relocate 'com.google.common', 'com.seeker.agent.shaded.com.google.common'
+//    relocate 'com.google.gson', 'com.seeker.agent.shaded.com.google.gson'
+//    relocate 'com.google.j2objc', 'com.seeker.agent.shaded.com.google.j2objc'
+//    relocate 'com.google.errorprone', 'com.seeker.agent.shaded.com.google.errorprone'
+//    relocate 'javax.annotation', 'com.seeker.agent.shaded.javax.annotation'
+
+    mergeServiceFiles()
+}
