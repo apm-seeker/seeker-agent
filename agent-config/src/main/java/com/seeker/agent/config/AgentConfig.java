@@ -16,20 +16,23 @@ public class AgentConfig {
 
     private final String agentId;
     // 해당 appliaction의 이름을 설정을 한다.
-    private final String applicationName;
+    private final String applicationName ;
     // 연동할 collector host를 설정을 해줍니다.
     private final String collectorHost;
     // 연결할 collectore의 port를 설정해줍니다.
     private final int collectorPort;
     // TODO 추후 sample 구현 예정
     private final double samplingRate;
+    // 특정 패키지 하위의 클래스를 추적할 base packages
+    private final String basePackages;
 
     private AgentConfig(Properties properties) {
         this.agentId = properties.getProperty("seeker.agentId", "unnamed-agent");
         this.applicationName = properties.getProperty("seeker.applicationName", "unnamed-application");
         this.collectorHost = properties.getProperty("seeker.collector.host", "127.0.0.1");
-        this.collectorPort = Integer.parseInt(properties.getProperty("seeker.collector.port", "9991"));
+        this.collectorPort = Integer.parseInt(properties.getProperty("seeker.collector.port", "9999"));
         this.samplingRate = Double.parseDouble(properties.getProperty("seeker.sampling.rate", "1.0"));
+        this.basePackages = properties.getProperty("seeker.basePackages", "");
     }
 
     public static AgentConfig load() {
@@ -78,6 +81,10 @@ public class AgentConfig {
 
     public double getSamplingRate() {
         return samplingRate;
+    }
+
+    public String getBasePackages() {
+        return basePackages;
     }
 
     @Override

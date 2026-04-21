@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation project(':agent-config')
     implementation project(':agent-core')
     implementation project(':agent-instrument')
     implementation project(':agent-sender')

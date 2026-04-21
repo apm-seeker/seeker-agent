@@ -14,3 +14,4 @@ include 'plugins:service-plugin'
 
 // Test
 include 'seeker-test'
+include 'seeker-test2'

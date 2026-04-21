@@ -1,5 +1,6 @@
 package com.seeker.agent.bootstrap;
 
+import com.seeker.agent.config.AgentConfig;
 import com.seeker.agent.core.context.ThreadLocalTraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
 import com.seeker.agent.instrument.InstrumentEngine;
@@ -23,29 +24,46 @@ public class AgentMain {
     public static void premain(String agentArgs, Instrumentation inst) {
         System.out.println("[Seeker] Seeker Agent 가동 시작...");
 
+        // 설정 로드
+        AgentConfig config = AgentConfig.load();
+        System.out.println("[Seeker] 로드된 설정: " + config);
+
         // TraceContext 초기화 및 Holder에 등록
         TraceContextHolder.setTraceContext(new ThreadLocalTraceContext());
 
         // DataSender 초기화 및 등록
-        // TODO: 실제 프로젝트에서는 시스템 프로퍼티나 파일 설정에서 가져와야 함
+        /* 기존 하드코딩 방식 - 주석 처리
         String appName = System.getProperty("seeker.application.name", "Default-App");
         String agentId = System.getProperty("seeker.agent.id", "Default-Agent");
-
         com.seeker.agent.core.sender.DataSender sender = new com.seeker.agent.sender.AsyncGrpcDataSender("localhost",
                 9999, appName, agentId);
+        */
+        com.seeker.agent.core.sender.DataSender sender = new com.seeker.agent.sender.AsyncGrpcDataSender(
+                config.getCollectorHost(),
+                config.getCollectorPort(),
+                config.getApplicationName(),
+                config.getAgentId());
         com.seeker.agent.core.sender.DataSenderHolder.setSender(sender);
 
         InstrumentEngine engine = new InstrumentEngine();
 
-        // TODO 기존의 하드코딩 방식의 Plugins 주입 방식을 config 방식으로 수정
         // 플러그인 등록
         engine.addPlugin(new TomcatPlugin());
         engine.addPlugin(new HttpClientPlugin());
         engine.addPlugin(new JdbcPlugin());
 
-        // 범용 서비스 플러그인 등록 (테스트 패키지 대상)
-        // TODO config파일을 확인을 하고 패키지를 확인후 가져오게 수정해야함
+        /* 기존 하드코딩 방식 - 주석 처리
         engine.addPlugin(new ServicePlugin("com.seeker.test"));
+        */
+
+        // 범용 서비스 플러그인 등록
+        String basePackages = config.getBasePackages();
+        if (basePackages != null && !basePackages.isEmpty()) {
+            String[] packages = basePackages.split(",");
+            for (String pkg : packages) {
+                engine.addPlugin(new ServicePlugin(pkg.trim()));
+            }
+        }
 
         // instrumentation 설치
         engine.install(inst);

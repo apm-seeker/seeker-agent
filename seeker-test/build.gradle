@@ -11,9 +11,12 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 }
 
-tasks.register('runTest', JavaExec) {
-    group = "verification"
-    mainClass = 'com.seeker.test.TestApplication'
-    classpath = sourceSets.main.runtimeClasspath
-    jvmArgs = ["-javaagent:${project(':agent-bootstrap').layout.buildDirectory.file('libs/agent-bootstrap-1.0-SNAPSHOT.jar').get().asFile.absolutePath}"]
-}
+//tasks.register('runTest', JavaExec) {
+//    dependsOn ':agent-bootstrap:jar'
+//    group = "verification"
+//    mainClass = 'com.seeker.test.TestApplication'
+//    classpath = sourceSets.main.runtimeClasspath
+//    jvmArgs = [
+//        "-javaagent:${project(':agent-bootstrap').layout.buildDirectory.file('libs/agent-bootstrap-1.0-SNAPSHOT.jar').get().asFile.absolutePath}"
+//    ]
+//}

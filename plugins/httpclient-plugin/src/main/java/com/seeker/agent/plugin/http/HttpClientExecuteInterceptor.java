@@ -56,7 +56,18 @@ public class HttpClientExecuteInterceptor implements AroundInterceptor {
 
             // HttpHost(args[0]) 정보를 통해 목적지 식별
             if (args != null && args.length > 0 && args[0] != null && event != null) {
-                event.addAttribute("destinationId", args[0].toString());
+                // org.apache.http.HttpHost 인스턴스인지 체크 (방어적 코드)
+                Object hostObj = args[0];
+                if (hostObj.getClass().getName().contains("HttpHost")) {
+                    event.addAttribute("destinationId", hostObj.toString());
+                } else {
+                    // HttpHost가 아닐 경우 URL에서 추출 시도
+                    RequestLine requestLine = (args.length > 1 && args[1] instanceof HttpRequest) 
+                            ? ((HttpRequest)args[1]).getRequestLine() : null;
+                    if (requestLine != null) {
+                         event.addAttribute("destinationId", requestLine.getUri());
+                    }
+                }
             }
         }
     }
