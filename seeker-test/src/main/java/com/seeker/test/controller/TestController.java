@@ -38,4 +38,9 @@ public class TestController {
     public String nested(@RequestParam(name = "name", defaultValue = "Seeker") String name) {
         return nestedService.startNestedFlow(name);
     }
+
+    @GetMapping("/call-test2")
+    public String callTest2() throws Exception {
+        return userService.callTest2();
+    }
 }

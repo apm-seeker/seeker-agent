@@ -34,4 +34,14 @@ public class UserService {
             }
         }
     }
+
+    public String callTest2() throws Exception {
+        // seeker-test2 호출 테스트
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet("http://localhost:8889/backend/work?name=From-Seeker-Test");
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                return "Response from seeker-test2: " + response.getStatusLine();
+            }
+        }
+    }
 }
