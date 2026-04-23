@@ -5,8 +5,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class AgentIdentityConfigTest {
 
@@ -14,45 +17,78 @@ class AgentIdentityConfigTest {
     @DisplayName("agentId")
     class AgentId {
         @Test
-        @DisplayName("프로퍼티 값을 그대로 보관한다")
-        void usesProperty() {
-            Properties props = new Properties();
-            props.setProperty("seeker.agent-identity.id", "my-agent");
+        @DisplayName("UUID 형식의 값을 자동으로 생성한다")
+        void generatesUuid() {
+            AgentIdentityConfig config = new AgentIdentityConfig(new Properties());
 
-            AgentIdentityConfig config = new AgentIdentityConfig(props);
-
-            assertEquals("my-agent", config.getAgentId());
+            assertDoesNotThrow(() -> UUID.fromString(config.getAgentId()));
         }
 
         @Test
-        @DisplayName("프로퍼티가 없으면 기본값 unnamed-agent를 사용한다")
-        void defaultsToUnnamedAgent() {
-            AgentIdentityConfig config = new AgentIdentityConfig(new Properties());
+        @DisplayName("인스턴스마다 서로 다른 ID를 생성한다")
+        void uniquePerInstance() {
+            AgentIdentityConfig a = new AgentIdentityConfig(new Properties());
+            AgentIdentityConfig b = new AgentIdentityConfig(new Properties());
 
-            assertEquals("unnamed-agent", config.getAgentId());
+            assertNotEquals(a.getAgentId(), b.getAgentId());
         }
     }
 
     @Nested
-    @DisplayName("applicationName")
-    class ApplicationName {
+    @DisplayName("agentName")
+    class AgentName {
         @Test
         @DisplayName("프로퍼티 값을 그대로 보관한다")
         void usesProperty() {
             Properties props = new Properties();
-            props.setProperty("seeker.agent-identity.application-name", "my-app");
+            props.setProperty("seeker.agent-identity.name", "my-agent");
 
             AgentIdentityConfig config = new AgentIdentityConfig(props);
 
-            assertEquals("my-app", config.getApplicationName());
+            assertEquals("my-agent", config.getAgentName());
         }
 
         @Test
-        @DisplayName("프로퍼티가 없으면 기본값 unnamed-application을 사용한다")
-        void defaultsToUnnamedApplication() {
+        @DisplayName("프로퍼티가 없으면 agentId의 앞 8자를 기본값으로 사용한다")
+        void defaultsToAgentIdPrefix() {
             AgentIdentityConfig config = new AgentIdentityConfig(new Properties());
 
-            assertEquals("unnamed-application", config.getApplicationName());
+            assertEquals(config.getAgentId().substring(0, 8), config.getAgentName());
+        }
+    }
+
+    @Nested
+    @DisplayName("agentType")
+    class AgentType {
+        @Test
+        @DisplayName("Tomcat으로 고정되어 있다")
+        void isFixedToTomcat() {
+            AgentIdentityConfig config = new AgentIdentityConfig(new Properties());
+
+            assertEquals("Tomcat", config.getAgentType());
+        }
+    }
+
+    @Nested
+    @DisplayName("agentGroup")
+    class AgentGroup {
+        @Test
+        @DisplayName("프로퍼티 값을 그대로 보관한다")
+        void usesProperty() {
+            Properties props = new Properties();
+            props.setProperty("seeker.agent-identity.group", "my-group");
+
+            AgentIdentityConfig config = new AgentIdentityConfig(props);
+
+            assertEquals("my-group", config.getAgentGroup());
+        }
+
+        @Test
+        @DisplayName("프로퍼티가 없으면 agentId의 앞 8자를 기본값으로 사용한다")
+        void defaultsToAgentIdPrefix() {
+            AgentIdentityConfig config = new AgentIdentityConfig(new Properties());
+
+            assertEquals(config.getAgentId().substring(0, 8), config.getAgentGroup());
         }
     }
 }

@@ -42,7 +42,7 @@ public class AgentMain {
         com.seeker.agent.core.sender.DataSender sender = new com.seeker.agent.sender.AsyncGrpcDataSender(
                 collectorConfig.getHost(),
                 collectorConfig.getPort(),
-                identityConfig.getApplicationName(),
+                identityConfig.getAgentName(),
                 identityConfig.getAgentId());
         com.seeker.agent.core.sender.DataSenderHolder.setSender(sender);
 
