@@ -41,7 +41,7 @@ public class AgentMain {
         // DataSender 초기화 및 등록
         com.seeker.agent.core.sender.DataSender sender = new com.seeker.agent.sender.AsyncGrpcDataSender(
                 collectorConfig.getHost(),
-                collectorConfig.getPort(),
+                collectorConfig.getGrpcPort(),
                 identityConfig.getAgentName(),
                 identityConfig.getAgentId());
         com.seeker.agent.core.sender.DataSenderHolder.setSender(sender);

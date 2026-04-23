@@ -34,17 +34,17 @@ class CollectorConfigTest {
     }
 
     @Nested
-    @DisplayName("port")
-    class Port {
+    @DisplayName("grpcPort")
+    class GrpcPort {
         @Test
         @DisplayName("프로퍼티 값을 int로 파싱한다")
         void parsesProperty() {
             Properties props = new Properties();
-            props.setProperty("seeker.collector.port", "8080");
+            props.setProperty("seeker.collector.grpc-port", "8080");
 
             CollectorConfig config = new CollectorConfig(props);
 
-            assertEquals(8080, config.getPort());
+            assertEquals(8080, config.getGrpcPort());
         }
 
         @Test
@@ -52,7 +52,30 @@ class CollectorConfigTest {
         void defaultsTo9999() {
             CollectorConfig config = new CollectorConfig(new Properties());
 
-            assertEquals(9999, config.getPort());
+            assertEquals(9999, config.getGrpcPort());
+        }
+    }
+
+    @Nested
+    @DisplayName("httpPort")
+    class HttpPort {
+        @Test
+        @DisplayName("프로퍼티 값을 int로 파싱한다")
+        void parsesProperty() {
+            Properties props = new Properties();
+            props.setProperty("seeker.collector.http-port", "9090");
+
+            CollectorConfig config = new CollectorConfig(props);
+
+            assertEquals(9090, config.getHttpPort());
+        }
+
+        @Test
+        @DisplayName("프로퍼티가 없으면 기본값 8888을 사용한다")
+        void defaultsTo8888() {
+            CollectorConfig config = new CollectorConfig(new Properties());
+
+            assertEquals(8888, config.getHttpPort());
         }
     }
 }
