@@ -6,7 +6,9 @@ import com.seeker.agent.config.ProfilerConfig;
 import com.seeker.agent.config.PropertiesLoader;
 import com.seeker.agent.core.context.ThreadLocalTraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
+import com.seeker.agent.core.model.AgentInfo;
 import com.seeker.agent.instrument.InstrumentEngine;
+import com.seeker.agent.sender.HttpAgentInfoSender;
 import com.seeker.agent.plugin.http.HttpClientPlugin;
 import com.seeker.agent.plugin.jdbc.JdbcPlugin;
 import com.seeker.agent.plugin.service.ServicePlugin;
@@ -34,6 +36,16 @@ public class AgentMain {
         CollectorConfig collectorConfig = new CollectorConfig(properties);
         ProfilerConfig profilerConfig = new ProfilerConfig(properties);
         System.out.println("[Seeker] 로드된 설정: " + identityConfig + ", " + collectorConfig + ", " + profilerConfig);
+
+        // Collector에 에이전트 등록 (HTTP)
+        long startTime = System.currentTimeMillis();
+        AgentInfo agentInfo = new AgentInfo(
+                identityConfig.getAgentId(),
+                identityConfig.getAgentName(),
+                identityConfig.getAgentType(),
+                identityConfig.getAgentGroup(),
+                startTime);
+        new HttpAgentInfoSender(collectorConfig.getHost(), collectorConfig.getHttpPort()).register(agentInfo);
 
         // TraceContext 초기화 및 Holder에 등록
         TraceContextHolder.setTraceContext(new ThreadLocalTraceContext());
