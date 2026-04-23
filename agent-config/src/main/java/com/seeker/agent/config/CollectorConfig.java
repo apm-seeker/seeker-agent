@@ -15,7 +15,7 @@ public class CollectorConfig {
     public CollectorConfig(Properties properties) {
         this.host = properties.getProperty("seeker.collector.host", "127.0.0.1");
         this.grpcPort = Integer.parseInt(properties.getProperty("seeker.collector.grpc-port", "9999"));
-        this.httpPort = Integer.parseInt(properties.getProperty("seeker.collector.http-port", "8888"));
+        this.httpPort = Integer.parseInt(properties.getProperty("seeker.collector.http-port", "8081"));
     }
 
     public String getHost() {

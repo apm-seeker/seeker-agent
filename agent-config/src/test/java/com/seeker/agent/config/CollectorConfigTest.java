@@ -71,11 +71,11 @@ class CollectorConfigTest {
         }
 
         @Test
-        @DisplayName("프로퍼티가 없으면 기본값 8888을 사용한다")
+        @DisplayName("프로퍼티가 없으면 기본값 8081을 사용한다")
         void defaultsTo8888() {
             CollectorConfig config = new CollectorConfig(new Properties());
 
-            assertEquals(8888, config.getHttpPort());
+            assertEquals(8081, config.getHttpPort());
         }
     }
 }
