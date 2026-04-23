@@ -12,8 +12,8 @@ public class AgentIdentityConfig {
     private final String applicationName;
 
     public AgentIdentityConfig(Properties properties) {
-        this.agentId = properties.getProperty("seeker.agentId", "unnamed-agent");
-        this.applicationName = properties.getProperty("seeker.applicationName", "unnamed-application");
+        this.agentId = properties.getProperty("seeker.agent-identity.id", "unnamed-agent");
+        this.applicationName = properties.getProperty("seeker.agent-identity.application-name", "unnamed-application");
     }
 
     public String getAgentId() {

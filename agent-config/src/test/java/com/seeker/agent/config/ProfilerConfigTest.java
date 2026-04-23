@@ -26,7 +26,7 @@ class ProfilerConfigTest {
         @DisplayName("프로퍼티 값을 boolean으로 파싱한다")
         void parsesProperty(String input, boolean expected) {
             Properties props = new Properties();
-            props.setProperty("seeker.profiler.jdbc.enable", input);
+            props.setProperty("seeker.profiler.jdbc.enabled", input);
 
             ProfilerConfig config = new ProfilerConfig(props);
 
@@ -55,7 +55,7 @@ class ProfilerConfigTest {
         @DisplayName("프로퍼티 값을 boolean으로 파싱한다")
         void parsesProperty(String input, boolean expected) {
             Properties props = new Properties();
-            props.setProperty("seeker.profiler.http.enable", input);
+            props.setProperty("seeker.profiler.http.enabled", input);
 
             ProfilerConfig config = new ProfilerConfig(props);
 
@@ -84,7 +84,7 @@ class ProfilerConfigTest {
         @DisplayName("프로퍼티 값을 boolean으로 파싱한다")
         void parsesProperty(String input, boolean expected) {
             Properties props = new Properties();
-            props.setProperty("seeker.profiler.spring.enable", input);
+            props.setProperty("seeker.profiler.spring.enabled", input);
 
             ProfilerConfig config = new ProfilerConfig(props);
 
@@ -107,7 +107,7 @@ class ProfilerConfigTest {
         @DisplayName("프로퍼티 값을 int로 파싱한다")
         void parsesProperty() {
             Properties props = new Properties();
-            props.setProperty("seeker.profiler.max.span.event.count", "500");
+            props.setProperty("seeker.profiler.max-span-event-count", "500");
 
             ProfilerConfig config = new ProfilerConfig(props);
 
@@ -130,7 +130,7 @@ class ProfilerConfigTest {
         @DisplayName("프로퍼티 값을 double로 파싱한다")
         void parsesProperty() {
             Properties props = new Properties();
-            props.setProperty("seeker.sampling.rate", "0.5");
+            props.setProperty("seeker.profiler.sampling-rate", "0.5");
 
             ProfilerConfig config = new ProfilerConfig(props);
 
@@ -153,7 +153,7 @@ class ProfilerConfigTest {
         @DisplayName("프로퍼티 값을 그대로 보관한다")
         void usesProperty() {
             Properties props = new Properties();
-            props.setProperty("seeker.basePackages", "com.example.a,com.example.b");
+            props.setProperty("seeker.profiler.base-packages", "com.example.a,com.example.b");
 
             ProfilerConfig config = new ProfilerConfig(props);
 

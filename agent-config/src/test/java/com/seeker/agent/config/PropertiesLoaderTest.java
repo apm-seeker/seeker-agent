@@ -13,33 +13,33 @@ class PropertiesLoaderTest {
 
     @BeforeEach
     void setUp() {
-        System.clearProperty("seeker.agentId");
-        System.clearProperty("seeker.applicationName");
+        System.clearProperty("seeker.agent-identity.id");
+        System.clearProperty("seeker.agent-identity.application-name");
     }
 
     @AfterEach
     void tearDown() {
-        System.clearProperty("seeker.agentId");
-        System.clearProperty("seeker.applicationName");
+        System.clearProperty("seeker.agent-identity.id");
+        System.clearProperty("seeker.agent-identity.application-name");
     }
 
     @Test
     @DisplayName("시스템 프로퍼티 값이 로드된 Properties에 포함된다")
     void systemPropertyIncluded() {
-        System.setProperty("seeker.agentId", "loader-agent");
-        System.setProperty("seeker.applicationName", "loader-app");
+        System.setProperty("seeker.agent-identity.id", "loader-agent");
+        System.setProperty("seeker.agent-identity.application-name", "loader-app");
 
         Properties properties = PropertiesLoader.load();
 
-        assertEquals("loader-agent", properties.getProperty("seeker.agentId"));
-        assertEquals("loader-app", properties.getProperty("seeker.applicationName"));
+        assertEquals("loader-agent", properties.getProperty("seeker.agent-identity.id"));
+        assertEquals("loader-app", properties.getProperty("seeker.agent-identity.application-name"));
     }
 
     @Test
     @DisplayName("시스템 프로퍼티로 주입한 값이 Config 객체에 반영된다")
     void systemPropertyOverridesConfig() {
-        System.setProperty("seeker.agentId", "override-agent");
-        System.setProperty("seeker.applicationName", "override-app");
+        System.setProperty("seeker.agent-identity.id", "override-agent");
+        System.setProperty("seeker.agent-identity.application-name", "override-app");
 
         Properties properties = PropertiesLoader.load();
         AgentIdentityConfig identity = new AgentIdentityConfig(properties);

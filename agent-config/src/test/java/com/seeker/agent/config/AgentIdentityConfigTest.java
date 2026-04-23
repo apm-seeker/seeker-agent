@@ -17,7 +17,7 @@ class AgentIdentityConfigTest {
         @DisplayName("프로퍼티 값을 그대로 보관한다")
         void usesProperty() {
             Properties props = new Properties();
-            props.setProperty("seeker.agentId", "my-agent");
+            props.setProperty("seeker.agent-identity.id", "my-agent");
 
             AgentIdentityConfig config = new AgentIdentityConfig(props);
 
@@ -40,7 +40,7 @@ class AgentIdentityConfigTest {
         @DisplayName("프로퍼티 값을 그대로 보관한다")
         void usesProperty() {
             Properties props = new Properties();
-            props.setProperty("seeker.applicationName", "my-app");
+            props.setProperty("seeker.agent-identity.application-name", "my-app");
 
             AgentIdentityConfig config = new AgentIdentityConfig(props);
 

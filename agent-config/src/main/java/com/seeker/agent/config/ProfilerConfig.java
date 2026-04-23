@@ -18,13 +18,13 @@ public class ProfilerConfig {
     private final String basePackages;
 
     public ProfilerConfig(Properties properties) {
-        this.jdbcEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.jdbc.enable", "true"));
-        this.httpEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.http.enable", "true"));
-        this.springEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.spring.enable", "true"));
+        this.jdbcEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.jdbc.enabled", "true"));
+        this.httpEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.http.enabled", "true"));
+        this.springEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.spring.enabled", "true"));
         this.maxSpanEventCount = Integer
-                .parseInt(properties.getProperty("seeker.profiler.max.span.event.count", "1500"));
-        this.samplingRate = Double.parseDouble(properties.getProperty("seeker.sampling.rate", "1.0"));
-        this.basePackages = properties.getProperty("seeker.basePackages", "");
+                .parseInt(properties.getProperty("seeker.profiler.max-span-event-count", "1500"));
+        this.samplingRate = Double.parseDouble(properties.getProperty("seeker.profiler.sampling-rate", "1.0"));
+        this.basePackages = properties.getProperty("seeker.profiler.base-packages", "");
     }
 
     public boolean isJdbcEnabled() {
