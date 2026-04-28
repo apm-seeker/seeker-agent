@@ -7,10 +7,13 @@ import com.seeker.agent.config.PropertiesLoader;
 import com.seeker.agent.core.context.ThreadLocalTraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
 import com.seeker.agent.core.model.AgentInfo;
+import com.seeker.agent.core.sender.AgentInfoSender;
 import com.seeker.agent.core.sender.DataSender;
 import com.seeker.agent.core.sender.DataSenderHolder;
 import com.seeker.agent.instrument.InstrumentEngine;
 import com.seeker.agent.sender.AsyncSpanDispatcher;
+import com.seeker.agent.sender.ConsoleAgentInfoSender;
+import com.seeker.agent.sender.ConsoleSpanTransport;
 import com.seeker.agent.sender.GrpcSpanTransport;
 import com.seeker.agent.sender.HttpAgentInfoSender;
 import com.seeker.agent.sender.SpanTransport;
@@ -42,7 +45,12 @@ public class AgentMain {
         ProfilerConfig profilerConfig = new ProfilerConfig(properties);
         System.out.println("[Seeker] 로드된 설정: " + identityConfig + ", " + collectorConfig + ", " + profilerConfig);
 
-        // Collector에 에이전트 등록 (HTTP)
+        boolean debugEnabled = profilerConfig.isDebugEnabled();
+        if (debugEnabled) {
+            System.out.println("[Seeker] DEBUG MODE ENABLED — collector 통신 차단, 수집 데이터를 콘솔에 출력");
+        }
+
+        // 에이전트 등록 (디버그 모드 시 콘솔, 평소 HTTP)
         long startTime = System.currentTimeMillis();
         AgentInfo agentInfo = new AgentInfo(
                 identityConfig.getAgentId(),
@@ -50,17 +58,22 @@ public class AgentMain {
                 identityConfig.getAgentType(),
                 identityConfig.getAgentGroup(),
                 startTime);
-        new HttpAgentInfoSender(collectorConfig.getHost(), collectorConfig.getHttpPort()).register(agentInfo);
+        AgentInfoSender agentInfoSender = debugEnabled
+                ? new ConsoleAgentInfoSender()
+                : new HttpAgentInfoSender(collectorConfig.getHost(), collectorConfig.getHttpPort());
+        agentInfoSender.register(agentInfo);
 
         // TraceContext 초기화 및 Holder에 등록
         TraceContextHolder.setTraceContext(new ThreadLocalTraceContext());
 
-        // DataSender 초기화 및 등록 (Dispatcher + Transport 조합)
-        SpanTransport transport = new GrpcSpanTransport(
-                collectorConfig.getHost(),
-                collectorConfig.getGrpcPort(),
-                identityConfig.getAgentName(),
-                identityConfig.getAgentId());
+        // DataSender 초기화 및 등록 (Dispatcher + Transport 조합, 디버그 모드 시 Transport는 콘솔)
+        SpanTransport transport = debugEnabled
+                ? new ConsoleSpanTransport()
+                : new GrpcSpanTransport(
+                        collectorConfig.getHost(),
+                        collectorConfig.getGrpcPort(),
+                        identityConfig.getAgentName(),
+                        identityConfig.getAgentId());
         DataSender sender = new AsyncSpanDispatcher(transport, 1024 * 8);
         DataSenderHolder.setSender(sender);
 
