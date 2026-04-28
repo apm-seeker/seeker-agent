@@ -7,8 +7,13 @@ import com.seeker.agent.config.PropertiesLoader;
 import com.seeker.agent.core.context.ThreadLocalTraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
 import com.seeker.agent.core.model.AgentInfo;
+import com.seeker.agent.core.sender.DataSender;
+import com.seeker.agent.core.sender.DataSenderHolder;
 import com.seeker.agent.instrument.InstrumentEngine;
+import com.seeker.agent.sender.AsyncSpanDispatcher;
+import com.seeker.agent.sender.GrpcSpanTransport;
 import com.seeker.agent.sender.HttpAgentInfoSender;
+import com.seeker.agent.sender.SpanTransport;
 import com.seeker.agent.plugin.http.HttpClientPlugin;
 import com.seeker.agent.plugin.jdbc.JdbcPlugin;
 import com.seeker.agent.plugin.service.ServicePlugin;
@@ -50,13 +55,14 @@ public class AgentMain {
         // TraceContext 초기화 및 Holder에 등록
         TraceContextHolder.setTraceContext(new ThreadLocalTraceContext());
 
-        // DataSender 초기화 및 등록
-        com.seeker.agent.core.sender.DataSender sender = new com.seeker.agent.sender.AsyncGrpcDataSender(
+        // DataSender 초기화 및 등록 (Dispatcher + Transport 조합)
+        SpanTransport transport = new GrpcSpanTransport(
                 collectorConfig.getHost(),
                 collectorConfig.getGrpcPort(),
                 identityConfig.getAgentName(),
                 identityConfig.getAgentId());
-        com.seeker.agent.core.sender.DataSenderHolder.setSender(sender);
+        DataSender sender = new AsyncSpanDispatcher(transport, 1024 * 8);
+        DataSenderHolder.setSender(sender);
 
         InstrumentEngine engine = new InstrumentEngine();
 
