@@ -16,6 +16,8 @@ public class ProfilerConfig {
     private final double samplingRate;
     // 특정 패키지 하위의 클래스를 추적할 base packages
     private final String basePackages;
+    // 디버그 모드: Collector에 연결하지 않고 수집 데이터를 콘솔에 출력
+    private final boolean debugEnabled;
 
     public ProfilerConfig(Properties properties) {
         this.jdbcEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.jdbc.enabled", "true"));
@@ -25,6 +27,7 @@ public class ProfilerConfig {
                 .parseInt(properties.getProperty("seeker.profiler.max-span-event-count", "1500"));
         this.samplingRate = Double.parseDouble(properties.getProperty("seeker.profiler.sampling-rate", "1.0"));
         this.basePackages = properties.getProperty("seeker.profiler.base-packages", "");
+        this.debugEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.debug.enabled", "false"));
     }
 
     public boolean isJdbcEnabled() {
@@ -51,6 +54,10 @@ public class ProfilerConfig {
         return basePackages;
     }
 
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
     @Override
     public String toString() {
         return "ProfilerConfig{" +
@@ -60,6 +67,7 @@ public class ProfilerConfig {
                 ", maxSpanEventCount=" + maxSpanEventCount +
                 ", samplingRate=" + samplingRate +
                 ", basePackages='" + basePackages + '\'' +
+                ", debugEnabled=" + debugEnabled +
                 '}';
     }
 }
