@@ -18,6 +18,7 @@ public class Span {
     private String uri;
     private String endPoint;
     private int serviceType;
+    private int statusCode;
     private String exceptionInfo;
     private final List<SpanEvent> spanEventList = new ArrayList<>();
 
@@ -100,6 +101,14 @@ public class Span {
 
     public void setServiceType(int serviceType) {
         this.serviceType = serviceType;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
 
     public String getExceptionInfo() {
