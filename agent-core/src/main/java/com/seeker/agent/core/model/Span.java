@@ -14,7 +14,7 @@ public class Span {
     private int elapsedTime;
     private final String remoteAddr;
     private String agentId;
-    private String applicationName;
+    private String parentAgentId;
     private String uri;
     private String endPoint;
     private int serviceType;
@@ -70,12 +70,12 @@ public class Span {
         this.agentId = agentId;
     }
 
-    public String getApplicationName() {
-        return applicationName;
+    public String getParentAgentId() {
+        return parentAgentId;
     }
 
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+    public void setParentAgentId(String parentAgentId) {
+        this.parentAgentId = parentAgentId;
     }
 
     public String getUri() {

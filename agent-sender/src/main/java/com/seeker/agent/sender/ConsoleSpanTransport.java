@@ -29,7 +29,6 @@ public class ConsoleSpanTransport implements SpanTransport {
         sb.append("Span{")
                 .append("traceId=").append(span.getTraceId())
                 .append(", agentId=").append(span.getAgentId())
-                .append(", applicationName=").append(span.getApplicationName())
                 .append(", uri=").append(span.getUri())
                 .append(", endPoint=").append(span.getEndPoint())
                 .append(", serviceType=").append(span.getServiceType())

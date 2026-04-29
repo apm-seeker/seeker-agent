@@ -2,15 +2,20 @@ package com.seeker.agent.plugin.was.tomcat;
 
 import com.seeker.agent.core.context.TraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
-import com.seeker.agent.core.context.TraceId;
+import com.seeker.agent.core.context.propagation.PropagationContext;
+import com.seeker.agent.core.context.propagation.PropagatorHolder;
 import com.seeker.agent.core.model.ServiceType;
 import com.seeker.agent.core.model.Span;
 import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
+import com.seeker.agent.plugin.was.tomcat.adapter.HttpServletRequestGetter;
 import org.apache.catalina.connector.Request;
 
 /**
  * Tomcat StandardHostValve.invoke 메서드를 가로채서 웹 요청의 시작과 끝을 추적하는 인터셉터입니다.
+ *
+ * <p>W3C Trace Context를 받아 trace에 합류한다. wire의 spanId를 자기 parentSpanId로 사용하고,
+ * 자기 spanId는 {@link TraceContext#continueTraceObject(String, long)} 안에서 새로 생성된다.
  */
 public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
@@ -20,23 +25,27 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         TraceContext context = TraceContextHolder.getContext();
 
-        // 분산 트레이싱: 요청 헤더에서 컨텍스트 추출
-        TraceId tid = null;
-
+        // 분산 트레이싱: 요청 헤더에서 wire 컨텍스트 추출 (W3C Trace Context)
+        PropagationContext propagated = PropagationContext.empty();
+        String parentAgentId = null;
+        Request request = null;
         if (args != null && args.length > 0 && args[0] instanceof Request) {
-            Request request = (Request) args[0];
-            String encodedContext = request.getHeader("Seeker-Context");
-            tid = TraceId.decode(encodedContext);
+            request = (Request) args[0];
+            propagated = PropagatorHolder.get()
+                    .extract(request, HttpServletRequestGetter.INSTANCE);
+            if (!propagated.isEmpty()) {
+                parentAgentId = propagated.getTraceState().get("pAgentId");
+            }
         }
 
         if (context.currentTraceObject() == null) {
             Trace trace;
-            if (tid != null) {
-                // 기존 트레이스 이어받기
-                trace = context.newTraceObject(tid);
+            if (!propagated.isEmpty()) {
+                // 받은 traceId/parentSpanId 위에 자기 spanId를 새로 생성하여 합류
+                trace = context.continueTraceObject(propagated.getTraceId(), propagated.getParentSpanId());
                 System.out.println("[Seeker] 기존 Trace 이어받음: " + trace.getTraceId());
             } else {
-                // 새로운 트레이스 시작
+                // 새로운 루트 트레이스 시작
                 trace = context.newTraceObject();
                 System.out.println("[Seeker] 새로운 Trace 시작: " + trace.getTraceId());
             }
@@ -45,8 +54,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             Span span = trace.getSpan();
             // 서비스 타입을 TOMCAT으로 설정
             span.setServiceType(ServiceType.TOMCAT.getCode());
-            if (args != null && args.length > 0 && args[0] instanceof Request) {
-                Request request = (Request) args[0];
+            if (parentAgentId != null && !parentAgentId.isEmpty()) {
+                span.setParentAgentId(parentAgentId);
+                System.out.println("[Seeker] Parent Agent: " + parentAgentId);
+            }
+            if (request != null) {
                 // 요청 URI 및 엔드포인트 정보 설정
                 span.setUri(request.getRequestURI());
                 span.setEndPoint(request.getLocalAddr() + ":" + request.getLocalPort());

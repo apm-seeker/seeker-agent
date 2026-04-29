@@ -17,7 +17,7 @@ public class ThreadLocalTraceContext implements TraceContext {
     }
 
     /**
-     * 새로운 트레이스를 생성합니다.
+     * 새로운 루트 트레이스를 생성합니다.
      */
     @Override
     public Trace newTraceObject() {
@@ -28,11 +28,13 @@ public class ThreadLocalTraceContext implements TraceContext {
     }
 
     /**
-     * 외부(부모)로부터 전달받은 TraceId를 이어받아 트레이스를 생성합니다.
+     * 외부에서 전달된 trace에 합류합니다. 자기 spanId는 로컬에서 새로 생성되고,
+     * 받은 parentSpanId가 자기 부모로 기록됩니다.
      */
     @Override
-    public Trace newTraceObject(TraceId traceId) {
-        Trace trace = new Trace(traceId, System.currentTimeMillis());
+    public Trace continueTraceObject(String traceId, long parentSpanId) {
+        TraceId tid = TraceId.continueWith(traceId, parentSpanId);
+        Trace trace = new Trace(tid, System.currentTimeMillis());
         traceHolder.set(trace);
         return trace;
     }
