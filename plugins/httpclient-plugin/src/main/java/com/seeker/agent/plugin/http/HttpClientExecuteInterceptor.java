@@ -13,6 +13,7 @@ import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
 import com.seeker.agent.plugin.http.adapter.ApacheHttpRequestSetter;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.RequestLine;
 
 /**
@@ -86,6 +87,15 @@ public class HttpClientExecuteInterceptor implements AroundInterceptor {
         Trace trace = context.currentTraceObject();
 
         if (trace != null) {
+            // 응답 상태 코드를 attribute로 기록
+            SpanEvent event = trace.currentSpanEvent();
+            if (event != null && result instanceof HttpResponse) {
+                HttpResponse response = (HttpResponse) result;
+                if (response.getStatusLine() != null) {
+                    event.addAttribute("http.code",
+                            String.valueOf(response.getStatusLine().getStatusCode()));
+                }
+            }
             // 외부 호출 블록 종료 및 예외 정보 기록
             trace.traceBlockEnd(throwable);
             System.out.println("[Seeker] HTTP 외부 요청 완료: " + className + "." + methodName + " 종료");
