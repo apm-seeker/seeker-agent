@@ -10,6 +10,7 @@ import com.seeker.agent.core.model.Trace;
 import com.seeker.agent.instrument.interceptor.AroundInterceptor;
 import com.seeker.agent.plugin.was.tomcat.adapter.HttpServletRequestGetter;
 import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
 
 /**
  * Tomcat StandardHostValve.invoke 메서드를 가로채서 웹 요청의 시작과 끝을 추적하는 인터셉터입니다.
@@ -73,6 +74,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         Trace trace = context.currentTraceObject();
 
         if (trace != null) {
+            // HTTP 응답 상태 코드 기록
+            if (args != null && args.length > 1 && args[1] instanceof Response) {
+                Response response = (Response) args[1];
+                trace.getSpan().setStatusCode(response.getStatus());
+            }
             // 전체 트레이스 종료 및 데이터 전송
             trace.finish();
             System.out.println("[Seeker] Tomcat 요청 처리 완료: " + trace.getTraceId() + " (elapsed: "
