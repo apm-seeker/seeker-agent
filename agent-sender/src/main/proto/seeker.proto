@@ -71,6 +71,7 @@ message Span {
   string exception_info = 9;        // 발생한 Exception 내역 (없으면 빈 문자열)
   repeated SpanEvent span_event_list = 10; // 내부의 상세 이벤트들
   string parent_agent_id = 11;       // 본 요청을 보낸 상위 호출자 에이전트의 ID (루트일 경우 빈 문자열)
+  int32 status_code = 12;            // HTTP 응답 상태 코드 (0이면 미설정)
 }
 
 // Span 내부에서 발생한 세부 작업 단위 (DB 쿼리, 외부 HTTP 호출 등)
