@@ -32,7 +32,8 @@ public class GrpcDataMessageConverter {
                 .setEndPoint(span.getEndPoint() != null ? span.getEndPoint() : "")
                 .setServiceType(span.getServiceType())
                 .setAgentId(agentId)
-                .setParentAgentId(span.getParentAgentId() != null ? span.getParentAgentId() : "");
+                .setParentAgentId(span.getParentAgentId() != null ? span.getParentAgentId() : "")
+                .setStatusCode(span.getStatusCode());
 
         if (span.getExceptionInfo() != null) {
             spanBuilder.setExceptionInfo(span.getExceptionInfo());
