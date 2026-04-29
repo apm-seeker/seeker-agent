@@ -1,29 +1,40 @@
 package com.seeker.agent.core.context;
 
-import java.util.UUID;
+import java.security.SecureRandom;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 분산 추적의 핵심 식별자 묶음.
- * traceId(전체 요청 체인), spanId(현재 서버 호출), parentSpanId(나를 호출한 서버의 spanId)를 포함합니다.
+ * 분산 추적의 핵심 식별자 묶음. 순수 값 객체.
+ *
+ * <p>W3C Trace Context 호환을 위해 다음 표현을 따른다.
+ * <ul>
+ *   <li>{@code traceId} : 16바이트 → 32-char lowercase hex 문자열</li>
+ *   <li>{@code spanId}, {@code parentSpanId} : 64-bit long (gRPC proto 호환).
+ *       헤더로 직렬화될 때만 16-char hex로 변환된다.</li>
+ * </ul>
+ *
+ * <p>spanId는 항상 <strong>로컬에서 생성</strong>된다. 호출자는 자기 spanId를 wire로 보내고,
+ * 수신자는 받은 spanId를 자기 입장의 parentSpanId로 삼아 새 spanId를 부여받는다.
+ * (sender 측 pre-allocation 구조가 아님.)
+ *
+ * <p>헤더 직렬화/역직렬화는 {@link com.seeker.agent.core.context.propagation.TraceContextPropagator}에 위임한다.
  */
 public class TraceId {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final char[] HEX = "0123456789abcdef".toCharArray();
 
     private final String traceId;
     private final long spanId;
     private final long parentSpanId;
 
     /**
-     * root Span일때의 Trace를 생성할때 해당 생성자를 사용한다.
+     * root Span일 때(루트 trace의 시작점)의 TraceId를 생성한다.
      */
-    // TODO traceId 를 생성을 할때는 UUID를 사용하지 않고 각 ID의 조합으로 수정을 한다.
     public TraceId() {
-        this(UUID.randomUUID().toString(), generateId(), -1);
+        this(generateTraceId(), generateSpanId(), -1);
     }
 
-    /**
-     * trace가 전파되어선 왔을때의 기존 traceId에 맞게 생성을 해준다.
-     */
     public TraceId(String traceId, long spanId, long parentSpanId) {
         this.traceId = traceId;
         this.spanId = spanId;
@@ -31,11 +42,11 @@ public class TraceId {
     }
 
     /**
-     * 다음 서버로 전파할 때 사용할 새로운 TraceId를 생성합니다.
-     * traceId는 유지되고, 현재 spanId가 부모 spanId가 되며, 새로운 spanId를 생성합니다.
+     * 외부에서 받은 trace에 합류할 때 사용하는 팩토리.
+     * 받은 {@code traceId}/{@code parentSpanId}는 그대로 두고, <strong>자기 spanId는 로컬에서 새로 생성</strong>한다.
      */
-    public TraceId getNextTraceId() {
-        return new TraceId(traceId, generateId(), spanId);
+    public static TraceId continueWith(String traceId, long parentSpanId) {
+        return new TraceId(traceId, generateSpanId(), parentSpanId);
     }
 
     public String getTraceId() {
@@ -50,38 +61,23 @@ public class TraceId {
         return parentSpanId;
     }
 
-    private static long generateId() {
-        return ThreadLocalRandom.current().nextLong();
-    }
-
-    public static TraceId from(String traceId, String spanIdStr, String parentSpanIdStr) {
-        long spanId = (spanIdStr != null) ? Long.parseLong(spanIdStr) : generateId();
-        long parentSpanId = (parentSpanIdStr != null) ? Long.parseLong(parentSpanIdStr) : -1;
-        return new TraceId(traceId, spanId, parentSpanId);
-    }
-
     /**
-     * TraceId 정보를 하나의 문자열로 인코딩합니다. (traceId,spanId,parentSpanId)
+     * W3C 표준에 맞는 16바이트(32 hex char) traceId 생성.
      */
-    public String encode() {
-        return traceId + "," + spanId + "," + parentSpanId;
-    }
-
-    /**
-     * 인코딩된 문자열로부터 TraceId 객체를 복구합니다.
-     */
-    public static TraceId decode(String encoded) {
-        if (encoded == null || encoded.isEmpty())
-            return null;
-        try {
-            String[] parts = encoded.split(",");
-            if (parts.length >= 3) {
-                return new TraceId(parts[0], Long.parseLong(parts[1]), Long.parseLong(parts[2]));
-            }
-        } catch (Exception ignored) {
-            // TODO 에러가 발생했을때 예외 처리
+    private static String generateTraceId() {
+        byte[] bytes = new byte[16];
+        SECURE_RANDOM.nextBytes(bytes);
+        char[] out = new char[32];
+        for (int i = 0; i < bytes.length; i++) {
+            int v = bytes[i] & 0xFF;
+            out[i * 2] = HEX[v >>> 4];
+            out[i * 2 + 1] = HEX[v & 0x0F];
         }
-        return null;
+        return new String(out);
+    }
+
+    private static long generateSpanId() {
+        return ThreadLocalRandom.current().nextLong();
     }
 
     @Override

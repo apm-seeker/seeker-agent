@@ -30,13 +30,18 @@ class ThreadLocalTraceContextTest {
     }
 
     @Test
-    @DisplayName("전달받은 TraceId를 사용하여 트레이스를 이어간다")
+    @DisplayName("전달받은 traceId/parentSpanId 위에 자기 spanId는 새로 생성하여 트레이스를 이어간다")
     void continueTraceObject() {
-        TraceId parentId = new TraceId();
-        Trace trace = threadLocalTraceContext.newTraceObject(parentId);
+        String parentTraceId = "0123456789abcdef0123456789abcdef";
+        long parentSpanId = 0xdeadbeefL;
+
+        Trace trace = threadLocalTraceContext.continueTraceObject(parentTraceId, parentSpanId);
 
         assertNotNull(trace);
-        assertEquals(parentId, trace.getTraceId());
+        assertEquals(parentTraceId, trace.getTraceId().getTraceId());
+        assertEquals(parentSpanId, trace.getTraceId().getParentSpanId());
+        // 자기 spanId는 로컬 생성 — parentSpanId와 절대 같지 않아야 한다.
+        assertNotEquals(parentSpanId, trace.getTraceId().getSpanId());
         assertEquals(trace, threadLocalTraceContext.currentTraceObject());
 
         threadLocalTraceContext.removeTraceObject();

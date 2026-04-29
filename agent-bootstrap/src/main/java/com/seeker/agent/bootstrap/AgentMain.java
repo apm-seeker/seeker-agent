@@ -6,7 +6,10 @@ import com.seeker.agent.config.ProfilerConfig;
 import com.seeker.agent.config.PropertiesLoader;
 import com.seeker.agent.core.context.ThreadLocalTraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
+import com.seeker.agent.core.context.propagation.PropagatorHolder;
+import com.seeker.agent.core.context.propagation.W3CTraceContextPropagator;
 import com.seeker.agent.core.model.AgentInfo;
+import com.seeker.agent.core.model.AgentInfoHolder;
 import com.seeker.agent.core.sender.AgentInfoSender;
 import com.seeker.agent.core.sender.DataSender;
 import com.seeker.agent.core.sender.DataSenderHolder;
@@ -63,8 +66,14 @@ public class AgentMain {
                 : new HttpAgentInfoSender(collectorConfig.getHost(), collectorConfig.getHttpPort());
         agentInfoSender.register(agentInfo);
 
+        // 인터셉터가 분산 추적 헤더에 자기 agentId를 실어보내려면 전역 접근이 필요
+        AgentInfoHolder.set(agentInfo);
+
         // TraceContext 초기화 및 Holder에 등록
         TraceContextHolder.setTraceContext(new ThreadLocalTraceContext());
+
+        // 분산 추적 헤더 propagator 등록 (기본: W3C Trace Context)
+        PropagatorHolder.setPropagator(new W3CTraceContextPropagator());
 
         // DataSender 초기화 및 등록 (Dispatcher + Transport 조합, 디버그 모드 시 Transport는 콘솔)
         SpanTransport transport = debugEnabled
