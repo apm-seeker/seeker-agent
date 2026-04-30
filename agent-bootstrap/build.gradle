@@ -6,6 +6,7 @@ dependencies {
     implementation project(':agent-config')
     implementation project(':agent-core')
     implementation project(':agent-instrument')
+    implementation project(':agent-metric')
     implementation project(':agent-sender')
     implementation project(':plugins:tomcat-plugin')
     implementation project(':plugins:httpclient-plugin')
