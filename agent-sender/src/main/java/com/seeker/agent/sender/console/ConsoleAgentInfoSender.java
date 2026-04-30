@@ -1,4 +1,4 @@
-package com.seeker.agent.sender;
+package com.seeker.agent.sender.console;
 
 import com.seeker.agent.core.model.AgentInfo;
 import com.seeker.agent.core.sender.AgentInfoSender;
