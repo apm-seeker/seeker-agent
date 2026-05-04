@@ -25,8 +25,7 @@ message DataMessage {
     AgentInfo agent_info = 1;
     Span span = 2;
     SpanChunk span_chunk = 3;
-    reserved 4;                          // 구버전 Metric 메시지 자리 (forward-compat 보호)
-    MetricSnapshot metric_snapshot = 5;  // Phase 1.5: 일반화된 metric batch
+    MetricSnapshot metric_snapshot = 4;  // Phase 1.5: 일반화된 metric batch
   }
 }
 
