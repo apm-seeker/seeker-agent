@@ -5,7 +5,6 @@ import com.seeker.agent.core.sender.MetricSender;
 import com.seeker.collector.global.grpc.CollectResponse;
 import com.seeker.collector.global.grpc.CollectorServiceGrpc;
 import com.seeker.collector.global.grpc.DataMessage;
-import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
@@ -30,7 +29,6 @@ import java.util.List;
 public class GrpcMetricSender implements MetricSender, Closeable {
 
     private final GrpcMetricConverter converter;
-    private final ManagedChannel channel;
     private final CollectorServiceGrpc.CollectorServiceStub stub;
 
     /**
@@ -40,13 +38,13 @@ public class GrpcMetricSender implements MetricSender, Closeable {
     private volatile StreamObserver<DataMessage> requestObserver;
 
     /**
-     * @param channel 외부에서 생성/소유하는 gRPC 채널. trace 송신과 공유 가능.
+     * @param channelHolder 외부에서 생성/소유하는 gRPC 채널의 holder. trace 송신과 공유 가능.
      */
-    public GrpcMetricSender(ManagedChannel channel) {
-        this.channel = channel;
+    public GrpcMetricSender(GrpcChannelHolder channelHolder) {
         this.converter = new GrpcMetricConverter();
-        this.stub = CollectorServiceGrpc.newStub(channel);
-        System.out.println("[Seeker] GrpcMetricSender 초기화 완료 (channel authority: " + channel.authority() + ")");
+        // channel() 호출은 같은 패키지(com.seeker.agent.sender)에서만 가능 — io.grpc 캡슐화 유지.
+        this.stub = CollectorServiceGrpc.newStub(channelHolder.channel());
+        System.out.println("[Seeker] GrpcMetricSender 초기화 완료 (channel: " + channelHolder.authority() + ")");
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.seeker.agent.metric.collector.JvmThreadCollector;
 import com.seeker.agent.metric.collector.SystemCpuCollector;
 import com.seeker.agent.metric.scheduler.MetricScheduler;
 import com.seeker.agent.sender.AsyncSpanDispatcher;
+import com.seeker.agent.sender.GrpcChannelHolder;
 import com.seeker.agent.sender.GrpcMetricSender;
 import com.seeker.agent.sender.GrpcSpanTransport;
 import com.seeker.agent.sender.HttpAgentInfoSender;
@@ -34,12 +35,9 @@ import com.seeker.agent.plugin.http.HttpClientPlugin;
 import com.seeker.agent.plugin.jdbc.JdbcPlugin;
 import com.seeker.agent.plugin.service.ServicePlugin;
 import com.seeker.agent.plugin.was.tomcat.TomcatPlugin;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 
 import java.lang.instrument.Instrumentation;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Java Agent의 진입점 클래스입니다.
@@ -88,20 +86,18 @@ public class AgentMain {
         // 분산 추적 헤더 propagator 등록 (기본: W3C Trace Context)
         PropagatorHolder.setPropagator(new W3CTraceContextPropagator());
 
-        // gRPC 채널을 1개만 생성하여 trace/metric 송신기가 공유한다.
+        // gRPC 채널 holder를 1개만 생성하여 trace/metric 송신기가 공유한다.
+        // io.grpc 의존은 GrpcChannelHolder 내부에 격리되어 본 클래스에서는 보이지 않는다.
         // 채널 위에 각자 별도 stream을 열어 격리하면서 채널 자원·인증은 한 번만 맺는다.
-        // 채널 라이프사이클은 AgentMain이 책임지며, 마지막 shutdown hook에서 종료한다.
-        final ManagedChannel grpcChannel = debugEnabled
+        final GrpcChannelHolder grpcChannelHolder = debugEnabled
                 ? null
-                : ManagedChannelBuilder.forAddress(collectorConfig.getHost(), collectorConfig.getGrpcPort())
-                        .usePlaintext()
-                        .build();
+                : new GrpcChannelHolder(collectorConfig.getHost(), collectorConfig.getGrpcPort());
 
         // DataSender 초기화 및 등록 (Dispatcher + Transport 조합, 디버그 모드 시 Transport는 콘솔)
         SpanTransport transport = debugEnabled
                 ? new ConsoleSpanTransport()
                 : new GrpcSpanTransport(
-                        grpcChannel,
+                        grpcChannelHolder,
                         identityConfig.getAgentName(),
                         identityConfig.getAgentId());
         DataSender sender = new AsyncSpanDispatcher(transport, 1024 * 8);
@@ -128,23 +124,14 @@ public class AgentMain {
 
         // ──────────────── JVM 메트릭 수집 가동 ────────────────
         if (profilerConfig.isMetricEnabled()) {
-            startMetricMonitor(profilerConfig, grpcChannel, debugEnabled, agentInfo);
+            startMetricMonitor(profilerConfig, grpcChannelHolder, debugEnabled, agentInfo);
         }
 
         // 공유 gRPC 채널 종료 hook — trace/metric 종료 후 마지막에 채널 정리.
         // 다른 sender들의 close()는 자기 stream만 정리하고 채널은 안 닫으므로 여기서 일괄 종료.
-        if (grpcChannel != null) {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    grpcChannel.shutdown();
-                    if (!grpcChannel.awaitTermination(2, TimeUnit.SECONDS)) {
-                        grpcChannel.shutdownNow();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    grpcChannel.shutdownNow();
-                }
-            }, "seeker-grpc-shutdown"));
+        if (grpcChannelHolder != null) {
+            Runtime.getRuntime().addShutdownHook(
+                    new Thread(grpcChannelHolder::close, "seeker-grpc-shutdown"));
         }
 
         System.out.println("[Seeker] Seeker Agent 설치 완료.");
@@ -155,7 +142,7 @@ public class AgentMain {
      * 디버그 모드 → ConsoleMetricSender, 정상 모드 → GrpcMetricSender (공유 채널 + 별도 stream).
      */
     private static void startMetricMonitor(ProfilerConfig profilerConfig,
-                                           ManagedChannel grpcChannel,
+                                           GrpcChannelHolder grpcChannelHolder,
                                            boolean debugEnabled,
                                            AgentInfo agentInfo) {
         MetricRegistry registry = new MetricRegistry();
@@ -168,7 +155,7 @@ public class AgentMain {
         // 송신기 분기 — 정상 모드는 trace와 채널 공유, stream만 별도.
         MetricSender metricSender = debugEnabled
                 ? new ConsoleMetricSender()
-                : new GrpcMetricSender(grpcChannel);
+                : new GrpcMetricSender(grpcChannelHolder);
 
         MetricScheduler scheduler = new MetricScheduler(
                 registry, metricSender, agentInfo,
