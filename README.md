@@ -15,7 +15,7 @@ JVM에 `-javaagent`로 부착되어 바이트코드를 조작(Byte Buddy)하고,
 
 ### 1. 에이전트 jar 빌드
 
-`agent-bootstrap` 모듈이 `com.gradleup.shadow`로 모든 의존을 합쳐 단일 jar를 만들고, 매니페스트에 `Premain-Class: com.seeker.agent.bootstrap.AgentMain`을 박습니다.
+`agent-bootstrap` 모듈은 `com.gradleup.shadow`로 모든 의존 라이브러리를 단일 jar로 합치고, 매니페스트에 `Premain-Class: com.seeker.agent.bootstrap.AgentMain`을 등록해 JVM이 부팅 시 `AgentMain.premain()`을 호출하도록 만듭니다. 이렇게 만들어진 jar가 `-javaagent:`로 부착할 산출물입니다.
 
 ```bash
 ./gradlew :agent-bootstrap:shadowJar
@@ -139,8 +139,8 @@ plugins/
 
 `com.seeker.agent.instrument.interceptor.AroundInterceptor`를 구현해 before/after 로직을 작성합니다.
 
-- **before**: `TraceContextHolder.getContext().currentTraceObject()`로 현재 trace를 꺼내, `trace.traceBlockBegin(...)`으로 SpanEvent를 시작. 메서드 인자 등에서 필요한 데이터를 `event.addAttribute(...)`로 박고, 1번에서 등록한 `MethodType` 코드를 `event.setMethodType(...)`로 지정.
-- **after**: 반환값/예외에서 추가로 기록할 게 있으면 attribute에 박고, `trace.traceBlockEnd(throwable)`로 SpanEvent를 마감.
+- **before**: `TraceContextHolder.getContext().currentTraceObject()`로 현재 trace를 꺼내, `trace.traceBlockBegin(...)`으로 SpanEvent를 시작. 메서드 인자 등에서 필요한 데이터를 `event.addAttribute(...)`로 기록하고, 1번에서 등록한 `MethodType` 코드를 `event.setMethodType(...)`로 지정.
+- **after**: 반환값/예외에서 추가로 기록할 게 있으면 attribute에 담고, `trace.traceBlockEnd(throwable)`로 SpanEvent를 마감.
 
 기존 `HttpClientExecuteInterceptor`, `PreparedStatementExecuteInterceptor`가 좋은 참고 예시입니다.
 
