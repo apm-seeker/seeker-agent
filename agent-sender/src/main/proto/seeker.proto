@@ -32,7 +32,6 @@ message DataMessage {
 // 서버의 응답 메시지
 message CollectResponse {
   bool success = 1;
-  int32 received_count = 2; // 서버가 스트림을 통해 성공적으로 받은 메시지 수
 }
 
 // ----------------------------------------------------------------
@@ -119,8 +118,7 @@ message MetricPoint {
 message MetricSnapshot {
   string application_name = 1;       // 에이전트가 속한 애플리케이션
   string agent_id = 2;               // 에이전트 인스턴스
-  int64 agent_start_time = 3;        // 에이전트 시작 시점 — 재시작 인스턴스 분리 키
-  int64 timestamp = 4;               // 이 cycle 수집 시점 (Epoch ms)
-  int64 collect_interval_ms = 5;     // wall-clock 측정된 cycle 간격 (스케줄 인터벌이 아님)
-  repeated MetricPoint points = 6;
+  int64 timestamp = 3;               // 이 cycle 수집 시점 (Epoch ms)
+  int64 collect_interval_ms = 4;     // wall-clock 측정된 cycle 간격 (스케줄 인터벌이 아님)
+  repeated MetricPoint points = 5;
 }
