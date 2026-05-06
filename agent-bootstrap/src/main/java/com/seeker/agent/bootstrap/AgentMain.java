@@ -8,18 +8,29 @@ import com.seeker.agent.core.context.ThreadLocalTraceContext;
 import com.seeker.agent.core.context.TraceContextHolder;
 import com.seeker.agent.core.context.propagation.PropagatorHolder;
 import com.seeker.agent.core.context.propagation.W3CTraceContextPropagator;
+import com.seeker.agent.core.metric.MetricRegistry;
+import com.seeker.agent.core.sender.MetricSender;
 import com.seeker.agent.core.model.AgentInfo;
 import com.seeker.agent.core.model.AgentInfoHolder;
 import com.seeker.agent.core.sender.AgentInfoSender;
 import com.seeker.agent.core.sender.DataSender;
 import com.seeker.agent.core.sender.DataSenderHolder;
 import com.seeker.agent.instrument.InstrumentEngine;
+import com.seeker.agent.metric.collector.JvmClassCollector;
+import com.seeker.agent.metric.collector.JvmGcCollector;
+import com.seeker.agent.metric.collector.JvmMemoryCollector;
+import com.seeker.agent.metric.collector.JvmThreadCollector;
+import com.seeker.agent.metric.collector.SystemCpuCollector;
+import com.seeker.agent.metric.scheduler.MetricScheduler;
 import com.seeker.agent.sender.AsyncSpanDispatcher;
-import com.seeker.agent.sender.ConsoleAgentInfoSender;
-import com.seeker.agent.sender.ConsoleSpanTransport;
+import com.seeker.agent.sender.GrpcChannelHolder;
+import com.seeker.agent.sender.GrpcMetricSender;
 import com.seeker.agent.sender.GrpcSpanTransport;
 import com.seeker.agent.sender.HttpAgentInfoSender;
 import com.seeker.agent.sender.SpanTransport;
+import com.seeker.agent.sender.console.ConsoleAgentInfoSender;
+import com.seeker.agent.sender.console.ConsoleMetricSender;
+import com.seeker.agent.sender.console.ConsoleSpanTransport;
 import com.seeker.agent.plugin.http.HttpClientPlugin;
 import com.seeker.agent.plugin.jdbc.JdbcPlugin;
 import com.seeker.agent.plugin.service.ServicePlugin;
@@ -75,12 +86,18 @@ public class AgentMain {
         // 분산 추적 헤더 propagator 등록 (기본: W3C Trace Context)
         PropagatorHolder.setPropagator(new W3CTraceContextPropagator());
 
+        // gRPC 채널 holder를 1개만 생성하여 trace/metric 송신기가 공유한다.
+        // io.grpc 의존은 GrpcChannelHolder 내부에 격리되어 본 클래스에서는 보이지 않는다.
+        // 채널 위에 각자 별도 stream을 열어 격리하면서 채널 자원·인증은 한 번만 맺는다.
+        final GrpcChannelHolder grpcChannelHolder = debugEnabled
+                ? null
+                : new GrpcChannelHolder(collectorConfig.getHost(), collectorConfig.getGrpcPort());
+
         // DataSender 초기화 및 등록 (Dispatcher + Transport 조합, 디버그 모드 시 Transport는 콘솔)
         SpanTransport transport = debugEnabled
                 ? new ConsoleSpanTransport()
                 : new GrpcSpanTransport(
-                        collectorConfig.getHost(),
-                        collectorConfig.getGrpcPort(),
+                        grpcChannelHolder,
                         identityConfig.getAgentName(),
                         identityConfig.getAgentId());
         DataSender sender = new AsyncSpanDispatcher(transport, 1024 * 8);
@@ -105,6 +122,60 @@ public class AgentMain {
         // instrumentation 설치
         engine.install(inst);
 
+        // ──────────────── JVM 메트릭 수집 가동 ────────────────
+        if (profilerConfig.isMetricEnabled()) {
+            startMetricMonitor(profilerConfig, grpcChannelHolder, debugEnabled, agentInfo);
+        }
+
+        // 공유 gRPC 채널 종료 hook — trace/metric 종료 후 마지막에 채널 정리.
+        // 다른 sender들의 close()는 자기 stream만 정리하고 채널은 안 닫으므로 여기서 일괄 종료.
+        if (grpcChannelHolder != null) {
+            Runtime.getRuntime().addShutdownHook(
+                    new Thread(grpcChannelHolder::close, "seeker-grpc-shutdown"));
+        }
+
         System.out.println("[Seeker] Seeker Agent 설치 완료.");
+    }
+
+    /**
+     * 메트릭 수집기들을 등록하고 스케줄러를 가동한다.
+     * 디버그 모드 → ConsoleMetricSender, 정상 모드 → GrpcMetricSender (공유 채널 + 별도 stream).
+     */
+    private static void startMetricMonitor(ProfilerConfig profilerConfig,
+                                           GrpcChannelHolder grpcChannelHolder,
+                                           boolean debugEnabled,
+                                           AgentInfo agentInfo) {
+        MetricRegistry registry = new MetricRegistry();
+        registry.register(new JvmGcCollector());
+        registry.register(new JvmMemoryCollector());
+        registry.register(new JvmThreadCollector());
+        registry.register(new JvmClassCollector());
+        registry.register(new SystemCpuCollector());
+
+        // 송신기 분기 — 정상 모드는 trace와 채널 공유, stream만 별도.
+        MetricSender metricSender = debugEnabled
+                ? new ConsoleMetricSender()
+                : new GrpcMetricSender(grpcChannelHolder);
+
+        MetricScheduler scheduler = new MetricScheduler(
+                registry, metricSender, agentInfo,
+                profilerConfig.getMetricIntervalMs(),
+                profilerConfig.getMetricBatchSize());
+        scheduler.start();
+
+        // JVM 종료 시 순서 (이 hook):
+        //   1) scheduler.stop()  — 다음 cycle 취소 + 진행 중 cycle 종료 + 잔여 버퍼 flush 시도
+        //   2) sender.close()    — 자기 stream만 정리 (채널은 안 닫음)
+        // 공유 채널 자체는 별도 hook("seeker-grpc-shutdown")에서 일괄 종료된다.
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            scheduler.stop();
+            if (metricSender instanceof java.io.Closeable) {
+                try {
+                    ((java.io.Closeable) metricSender).close();
+                } catch (Exception ignored) {
+                    // shutdown 경로에서는 throw 금지
+                }
+            }
+        }, "seeker-stat-shutdown"));
     }
 }

@@ -1,8 +1,9 @@
-package com.seeker.agent.sender;
+package com.seeker.agent.sender.console;
 
 import com.seeker.agent.core.model.MethodType;
 import com.seeker.agent.core.model.Span;
 import com.seeker.agent.core.model.SpanEvent;
+import com.seeker.agent.sender.SpanTransport;
 
 /**
  * Span을 콘솔에 트리 형태로 출력하는 SpanTransport 구현체입니다.

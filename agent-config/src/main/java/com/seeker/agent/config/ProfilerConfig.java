@@ -18,6 +18,12 @@ public class ProfilerConfig {
     private final String basePackages;
     // 디버그 모드: Collector에 연결하지 않고 수집 데이터를 콘솔에 출력
     private final boolean debugEnabled;
+    // 메트릭 수집 활성화 여부 (전체 on/off)
+    private final boolean metricEnabled;
+    // 메트릭 수집 주기. MetricScheduler에서 [1000, 10000]로 클램프됨.
+    private final long metricIntervalMs;
+    // N cycle 누적 후 batch 전송. 5초 인터벌 × 6 = 30초마다 송신.
+    private final int metricBatchSize;
 
     public ProfilerConfig(Properties properties) {
         this.jdbcEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.jdbc.enabled", "true"));
@@ -28,6 +34,9 @@ public class ProfilerConfig {
         this.samplingRate = Double.parseDouble(properties.getProperty("seeker.profiler.sampling-rate", "1.0"));
         this.basePackages = properties.getProperty("seeker.profiler.base-packages", "");
         this.debugEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.debug.enabled", "false"));
+        this.metricEnabled = Boolean.parseBoolean(properties.getProperty("seeker.metric.enabled", "true"));
+        this.metricIntervalMs = Long.parseLong(properties.getProperty("seeker.metric.interval.ms", "5000"));
+        this.metricBatchSize = Integer.parseInt(properties.getProperty("seeker.metric.batch.size", "6"));
     }
 
     public boolean isJdbcEnabled() {
@@ -58,6 +67,18 @@ public class ProfilerConfig {
         return debugEnabled;
     }
 
+    public boolean isMetricEnabled() {
+        return metricEnabled;
+    }
+
+    public long getMetricIntervalMs() {
+        return metricIntervalMs;
+    }
+
+    public int getMetricBatchSize() {
+        return metricBatchSize;
+    }
+
     @Override
     public String toString() {
         return "ProfilerConfig{" +
@@ -68,6 +89,9 @@ public class ProfilerConfig {
                 ", samplingRate=" + samplingRate +
                 ", basePackages='" + basePackages + '\'' +
                 ", debugEnabled=" + debugEnabled +
+                ", metricEnabled=" + metricEnabled +
+                ", metricIntervalMs=" + metricIntervalMs +
+                ", metricBatchSize=" + metricBatchSize +
                 '}';
     }
 }
