@@ -19,16 +19,14 @@ public final class MetricSnapshot {
 
     private final String applicationName;
     private final String agentId;
-    private final long agentStartTime;
     private final long timestamp;
     private final long collectIntervalMs;
     private final List<Metric> metrics;
 
-    public MetricSnapshot(String applicationName, String agentId, long agentStartTime,
+    public MetricSnapshot(String applicationName, String agentId,
                           long timestamp, long collectIntervalMs, List<Metric> metrics) {
         this.applicationName = applicationName;
         this.agentId = agentId;
-        this.agentStartTime = agentStartTime;
         this.timestamp = timestamp;
         this.collectIntervalMs = collectIntervalMs;
         this.metrics = (metrics == null) ? Collections.emptyList()
@@ -43,7 +41,6 @@ public final class MetricSnapshot {
         return new MetricSnapshot(
                 agentInfo.getAgentName(),
                 agentInfo.getAgentId(),
-                agentInfo.getStartTime(),
                 timestamp,
                 collectIntervalMs,
                 metrics);
@@ -51,7 +48,6 @@ public final class MetricSnapshot {
 
     public String getApplicationName() { return applicationName; }
     public String getAgentId() { return agentId; }
-    public long getAgentStartTime() { return agentStartTime; }
     public long getTimestamp() { return timestamp; }
     public long getCollectIntervalMs() { return collectIntervalMs; }
     public List<Metric> getMetrics() { return metrics; }

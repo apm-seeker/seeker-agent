@@ -29,7 +29,6 @@ public class GrpcMetricConverter {
                 com.seeker.collector.global.grpc.MetricSnapshot.newBuilder()
                         .setApplicationName(nullSafe(snapshot.getApplicationName()))
                         .setAgentId(nullSafe(snapshot.getAgentId()))
-                        .setAgentStartTime(snapshot.getAgentStartTime())
                         .setTimestamp(snapshot.getTimestamp())
                         .setCollectIntervalMs(snapshot.getCollectIntervalMs());
 
