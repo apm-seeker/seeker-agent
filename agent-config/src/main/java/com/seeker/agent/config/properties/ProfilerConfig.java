@@ -1,4 +1,4 @@
-package com.seeker.agent.config;
+package com.seeker.agent.config.properties;
 
 import java.util.Properties;
 

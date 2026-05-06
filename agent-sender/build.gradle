@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation project(':agent-core')
+    implementation project(':agent-config')
     implementation 'org.jctools:jctools-core:4.0.5'
     
     // gRPC

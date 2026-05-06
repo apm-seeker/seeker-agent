@@ -1,4 +1,4 @@
-package com.seeker.agent.config;
+package com.seeker.agent.config.loader;
 
 import java.io.FileInputStream;
 import java.io.IOException;

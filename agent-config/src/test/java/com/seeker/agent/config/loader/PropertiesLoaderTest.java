@@ -1,4 +1,6 @@
-package com.seeker.agent.config;
+package com.seeker.agent.config.loader;
+
+import com.seeker.agent.config.properties.AgentIdentityConfig;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
