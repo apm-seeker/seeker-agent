@@ -1,0 +1,28 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:scenario}
+  datasource:
+    url: jdbc:mysql://localhost:3306/seeker_scenario?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQLDialect
+
+downstream:
+  auth: http://localhost:8091
+  order: http://localhost:8092
+  product: http://localhost:8093
+  payment: http://localhost:8094
+  pgmock: http://localhost:8095
+
+logging:
+  level:
+    com.seeker.scenario: INFO

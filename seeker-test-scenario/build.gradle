@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.mysql:mysql-connector-j'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+application {
+    mainClass = 'com.seeker.scenario.ScenarioApplication'
+}
+
+// Spring Boot fat jar 는 nested LaunchedURLClassLoader 가 tomcat-embed-core 를
+// 격리시켜 seeker-agent 의 tomcat plugin 이 org.apache.catalina.connector.Request 를
+// 못 찾는다. application 플러그인의 installDist 로 일반 classpath 실행을 사용.
+bootJar.enabled = false
+jar.enabled = true
