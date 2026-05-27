@@ -29,6 +29,7 @@ public class GrpcDataMessageConverter {
                 .setElapsedTime(span.getElapsedTime())
                 .setRemoteAddr(span.getRemoteAddr() != null ? span.getRemoteAddr() : "")
                 .setUri(span.getUri() != null ? span.getUri() : "")
+                .setHttpMethod(span.getHttpMethod() != null ? span.getHttpMethod() : "")
                 .setEndPoint(span.getEndPoint() != null ? span.getEndPoint() : "")
                 .setServiceType(span.getServiceType())
                 .setAgentId(agentId)

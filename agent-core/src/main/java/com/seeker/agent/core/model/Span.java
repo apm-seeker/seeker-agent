@@ -16,6 +16,7 @@ public class Span {
     private String agentId;
     private String parentAgentId;
     private String uri;
+    private String httpMethod;
     private String endPoint;
     private int serviceType;
     private int statusCode;
@@ -81,6 +82,12 @@ public class Span {
 
     public String getUri() {
         return uri;
+    }
+
+    public String getHttpMethod(){return httpMethod;}
+
+    public void setHttpMethod(String httpMethod){
+        this.httpMethod = httpMethod;
     }
 
     public void setUri(String uri) {

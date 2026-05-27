@@ -63,6 +63,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 // 요청 URI 및 엔드포인트 정보 설정
                 span.setUri(request.getRequestURI());
                 span.setEndPoint(request.getLocalAddr() + ":" + request.getLocalPort());
+                span.setHttpMethod(request.getMethod());
             }
         }
     }
