@@ -4,6 +4,7 @@ import com.seeker.agent.config.properties.ProfilerConfig;
 import com.seeker.agent.instrument.InstrumentEngine;
 import com.seeker.agent.plugin.http.HttpClientPlugin;
 import com.seeker.agent.plugin.jdbc.JdbcPlugin;
+import com.seeker.agent.plugin.logback.LogbackPlugin;
 import com.seeker.agent.plugin.service.ServicePlugin;
 import com.seeker.agent.plugin.was.tomcat.TomcatPlugin;
 
@@ -33,6 +34,15 @@ public final class PluginPackInstaller {
         }
         if (profilerConfig.isSpringEnabled()) {
             addServicePlugins(engine, profilerConfig.getBasePackages());
+        }
+        if (profilerConfig.log().isEnabled() && profilerConfig.log().isLogbackEnabled()) {
+            engine.addPlugin(new LogbackPlugin(
+                    profilerConfig.log().getMinLevel(),
+                    profilerConfig.log().isOnlyTraced(),
+                    profilerConfig.log().isMdcEnabled(),
+                    profilerConfig.log().getMdcKeys(),
+                    profilerConfig.log().getMaxMessageLength(),
+                    profilerConfig.log().getMaxStacktraceLength()));
         }
 
         engine.install(instrumentation);

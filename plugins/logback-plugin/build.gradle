@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(':agent-core')
+    implementation project(':agent-instrument')
+    implementation 'net.bytebuddy:byte-buddy:1.14.12'
+
+    compileOnly 'ch.qos.logback:logback-classic:1.4.14'
+}

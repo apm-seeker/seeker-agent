@@ -8,6 +8,7 @@ JVM에 `-javaagent`로 부착되어 바이트코드를 조작(Byte Buddy)하고,
 - **W3C Trace Context 호환 분산 추적** — OpenTelemetry가 따르는 동일 표준 헤더로 다른 벤더 에이전트와 동일 trace를 공유합니다.
 - **JVM/시스템 메트릭 주기 수집** — GC 횟수·시간, 힙/논힙 메모리, 스레드, 클래스 로딩, 프로세스/시스템 CPU를 일정 주기로 모아 보냅니다. GC는 Serial·Parallel·CMS·G1·ZGC·Shenandoah를 런타임에 자동 분류해 동일 스키마로 노출합니다.
 - **gRPC 비동기 + 단일 채널 멀티 스트림 송신** — span/metric이 채널 하나를 공유하면서 각자 별도 stream을 사용해 한쪽 폭주가 다른 쪽을 막지 않도록 격리합니다.
+- **Logback 로그-트레이스 상관관계** — Logback 이벤트를 수집해 현재 traceId/spanId와 함께 LogRecord로 전송합니다.
 
 ---
 
@@ -89,6 +90,17 @@ seeker.profiler.base-packages=com.example.order,com.example.common
 # debug 모드 — Collector로 보내지 않고 수집 데이터를 콘솔에 출력 (로컬 점검용)
 seeker.profiler.debug.enabled=false
 
+# ── 로그 추적 ─────────────────────────────────────────────────
+# Logback logging event를 traceId/spanId와 함께 수집
+seeker.profiler.log.enabled=false
+seeker.profiler.log.logback.enabled=true
+# 기본은 trace 안에서 발생한 ERROR 이상 로그만 수집
+seeker.profiler.log.min-level=ERROR
+seeker.profiler.log.only-traced=true
+# MDC는 allowlist 기반으로만 수집
+seeker.profiler.log.mdc.enabled=false
+seeker.profiler.log.mdc.keys=
+
 # ── 메트릭 ───────────────────────────────────────────────────
 # JVM/시스템 메트릭 수집 전체 on/off
 seeker.metric.enabled=true
@@ -116,7 +128,49 @@ plugins/
   httpclient-plugin 외부 호출에 W3C 헤더 inject
   jdbc-plugin       SQL 정보 수집
   service-plugin    base-packages 하위 클래스의 public 메서드 추적
+  logback-plugin    Logback 로그 이벤트와 trace/span 상관관계 수집
 ```
+
+각 모듈의 상세 역할은 모듈별 README를 참고하세요.
+
+---
+
+## 현재 지원 범위
+
+### Supported
+
+- Java `-javaagent` 부착
+- Tomcat 요청 tracing
+- Apache HttpClient 4.x 외부 호출 tracing 및 W3C header inject
+- JDBC PreparedStatement tracing
+- package-prefix 기반 service method tracing
+- JVM GC, memory, thread, class loading, CPU metric
+- W3C Trace Context propagation
+- Logback log trace correlation
+- gRPC span/metric/log 전송
+- debug mode console 출력
+
+### Not Yet Supported
+
+- Log4j2 / JUL log plugin
+- Jetty / Undertow / WebFlux server instrumentation
+- Java 11 HttpClient / OkHttp / WebClient plugin
+- async executor / reactive context propagation
+- production-grade reconnect backoff와 sender self metric
+- complete OpenTelemetry compatibility
+
+전체 지원 매트릭스는 [docs/supported-matrix.md](docs/supported-matrix.md)를 참고하세요.
+
+---
+
+## 문서
+
+- [지원 매트릭스](docs/supported-matrix.md)
+- [현재 제한사항](docs/limitations.md)
+- [샘플 시나리오 실행](docs/sample-scenario.md)
+- [Log trace 구현 상세](docs/log-trace-implementation-details.md)
+- [동기 Collector 전송 병목 트러블슈팅](docs/troubleshooting-sync-collector-bottleneck.md)
+- [오픈소스 분석](docs/agent-open-source-analysis.md)
 
 ---
 
