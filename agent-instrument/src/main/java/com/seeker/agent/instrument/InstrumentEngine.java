@@ -31,6 +31,7 @@ public class InstrumentEngine {
      */
     public void install(Instrumentation instrumentation) {
         AgentBuilder agentBuilder = new AgentBuilder.Default()
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .ignore(StandardMatchers.ignoreClasses()); // 공통 제외 규칙 적용
 
         for (Plugin plugin : plugins) {

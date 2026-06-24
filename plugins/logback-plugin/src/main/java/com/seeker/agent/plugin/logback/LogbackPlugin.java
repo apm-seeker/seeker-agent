@@ -37,7 +37,7 @@ public class LogbackPlugin implements Plugin {
     @Override
     public AgentBuilder transform(AgentBuilder agentBuilder) {
         return agentBuilder
-                .type(named("ch.qos.logback.core.UnsynchronizedAppenderBase"))
+                .type(named("ch.qos.logback.classic.Logger"))
                 .transform((builder, typeDescription, classLoader, module, pd) -> {
                     String interceptorName = "LogbackAppenderInterceptor";
                     InterceptorRegistry.register(interceptorName, new LogbackAppenderInterceptor(
@@ -48,7 +48,7 @@ public class LogbackPlugin implements Plugin {
                             maxMessageLength,
                             maxStacktraceLength));
 
-                    return new BaseTransformer(interceptorName, named("doAppend"))
+                    return new BaseTransformer(interceptorName, named("callAppenders"))
                             .transform(builder, typeDescription, classLoader, module, pd);
                 });
     }

@@ -168,8 +168,8 @@ plugins/
 - [지원 매트릭스](docs/supported-matrix.md)
 - [현재 제한사항](docs/limitations.md)
 - [샘플 시나리오 실행](docs/sample-scenario.md)
-- [Log trace 구현 상세](docs/log-trace-implementation-details.md)
-- [동기 Collector 전송 병목 트러블슈팅](docs/troubleshooting-sync-collector-bottleneck.md)
+- [Log trace 구현 상세](docs/plan/log/log-trace-implementation-details.md)
+- [동기 Collector 전송 병목 트러블슈팅](docs/포트폴리오/troubleshooting-sync-collector-bottleneck.md)
 - [오픈소스 분석](docs/agent-open-source-analysis.md)
 
 ---
