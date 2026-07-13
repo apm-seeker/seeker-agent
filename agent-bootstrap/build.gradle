@@ -12,6 +12,7 @@ dependencies {
     implementation project(':plugins:httpclient-plugin')
     implementation project(':plugins:jdbc-plugin')
     implementation project(':plugins:service-plugin')
+    implementation project(':plugins:logback-plugin')
 }
 
 shadowJar {

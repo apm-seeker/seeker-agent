@@ -7,9 +7,13 @@ import com.seeker.agent.core.sender.AgentInfoSender;
 import com.seeker.agent.core.sender.DataSender;
 import com.seeker.agent.core.sender.DataSenderHolder;
 import com.seeker.agent.core.sender.MetricSender;
+import com.seeker.agent.core.sender.LogSenderHolder;
 import com.seeker.agent.sender.console.ConsoleAgentInfoSender;
 import com.seeker.agent.sender.console.ConsoleMetricSender;
 import com.seeker.agent.sender.console.ConsoleSpanTransport;
+import com.seeker.agent.sender.log.AsyncLogDispatcher;
+import com.seeker.agent.sender.console.ConsoleLogTransport;
+import com.seeker.agent.sender.log.LogTransport;
 
 import java.io.Closeable;
 
@@ -36,6 +40,7 @@ public final class SenderModule implements Closeable {
     private final DataSender dataSender;
 
     private MetricSender metricSender;
+    private AsyncLogDispatcher logSender;
     private boolean closed;
 
     private SenderModule(boolean debugEnabled,
@@ -68,7 +73,25 @@ public final class SenderModule implements Closeable {
         DataSender dataSender = new AsyncSpanDispatcher(transport, DEFAULT_SPAN_QUEUE_CAPACITY);
         DataSenderHolder.setSender(dataSender);
 
-        return new SenderModule(debugEnabled, grpcChannelHolder, dataSender);
+        SenderModule module = new SenderModule(debugEnabled, grpcChannelHolder, dataSender);
+        module.initializeLogSenderIfEnabled(profilerConfig);
+        return module;
+    }
+
+    private void initializeLogSenderIfEnabled(ProfilerConfig profilerConfig) {
+        if (!profilerConfig.log().isEnabled()) {
+            return;
+        }
+        LogTransport transport = debugEnabled
+                ? new ConsoleLogTransport()
+                : new GrpcLogTransport(grpcChannelHolder);
+        logSender = new AsyncLogDispatcher(
+                transport,
+                profilerConfig.log().getQueueCapacity(),
+                profilerConfig.log().getBatchSize(),
+                profilerConfig.log().getFlushIntervalMs());
+        LogSenderHolder.setSender(logSender);
+        System.out.println("[Seeker] log sender initialized: " + transport.getClass().getSimpleName());
     }
 
     /**
@@ -99,6 +122,7 @@ public final class SenderModule implements Closeable {
         }
         closed = true;
         closeIfPossible(dataSender);
+        closeIfPossible(logSender);
         closeIfPossible(metricSender);
         closeIfPossible(grpcChannelHolder);
     }

@@ -24,6 +24,8 @@ public class ProfilerConfig {
     private final long metricIntervalMs;
     // N cycle 누적 후 batch 전송. 5초 인터벌 × 6 = 30초마다 송신.
     private final int metricBatchSize;
+    // 로그 수집 설정
+    private final LogConfig logConfig;
 
     public ProfilerConfig(Properties properties) {
         this.jdbcEnabled = Boolean.parseBoolean(properties.getProperty("seeker.profiler.jdbc.enabled", "true"));
@@ -37,6 +39,7 @@ public class ProfilerConfig {
         this.metricEnabled = Boolean.parseBoolean(properties.getProperty("seeker.metric.enabled", "true"));
         this.metricIntervalMs = Long.parseLong(properties.getProperty("seeker.metric.interval.ms", "5000"));
         this.metricBatchSize = Integer.parseInt(properties.getProperty("seeker.metric.batch.size", "6"));
+        this.logConfig = new LogConfig(properties);
     }
 
     public boolean isJdbcEnabled() {
@@ -79,6 +82,10 @@ public class ProfilerConfig {
         return metricBatchSize;
     }
 
+    public LogConfig log() {
+        return logConfig;
+    }
+
     @Override
     public String toString() {
         return "ProfilerConfig{" +
@@ -92,6 +99,7 @@ public class ProfilerConfig {
                 ", metricEnabled=" + metricEnabled +
                 ", metricIntervalMs=" + metricIntervalMs +
                 ", metricBatchSize=" + metricBatchSize +
+                ", logConfig=" + logConfig +
                 '}';
     }
 }

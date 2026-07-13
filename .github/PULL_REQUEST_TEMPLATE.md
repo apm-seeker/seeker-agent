@@ -15,7 +15,12 @@
 ## ✅ 체크리스트
 
 - [ ] 로컬에서 빌드 및 테스트를 통과했습니다.
+- [ ] `./gradlew test` 또는 변경 범위에 맞는 Gradle task를 실행했습니다.
+- [ ] agent shadow jar 빌드가 필요한 변경이면 `./gradlew :agent-bootstrap:shadowJar`를 확인했습니다.
 - [ ] 관련 문서를 업데이트했습니다. (필요한 경우)
+- [ ] 설정, proto, plugin 지원 범위가 바뀌었다면 README/docs를 업데이트했습니다.
+- [ ] agent 내부 예외가 사용자 애플리케이션으로 전파되지 않는지 확인했습니다.
+- [ ] 요청 thread에서 blocking network I/O가 추가되지 않았는지 확인했습니다.
 - [ ] 리뷰어가 확인하기 쉽도록 변경 사항을 정리했습니다.
 
 ## 💬 리뷰어에게
