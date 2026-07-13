@@ -14,8 +14,6 @@ include 'plugins:jdbc-plugin'
 include 'plugins:service-plugin'
 include 'plugins:logback-plugin'
 
-// Test
+// Sample applications
 include 'seeker-test'
 include 'seeker-test2'
-include 'seeker-test-scenario'
-project(':seeker-test-scenario').projectDir = file('../testserver/seeker-test-scenario')
